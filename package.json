@@ -1,0 +1,13 @@
+{
+  "name": "stock-signal-ai-v2",
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "latest",
+    "multer": "latest",
+    "openai": "latest"
+  }
+}
