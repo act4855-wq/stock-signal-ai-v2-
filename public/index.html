@@ -588,7 +588,32 @@ V6 위험관리 매매 계획
 </div>
 
 </div>
+<div class="trade-plan">
 
+  <div class="trade-title">
+    V7 진입 의사결정
+  </div>
+
+  <div class="plan-grid">
+
+    <div class="plan-item">
+      <div class="plan-label">최종 진입 판단</div>
+      <div id="entryDecision" class="plan-value">-</div>
+    </div>
+
+    <div class="plan-item">
+      <div class="plan-label">진입 후보가까지 거리</div>
+      <div id="entryDistance" class="plan-value">-</div>
+    </div>
+
+  </div>
+
+  <div class="strategy">
+    <strong>진입 판단 근거</strong>
+    <div id="decisionReason">-</div>
+  </div>
+
+</div>
 
 <div class="section-title">
 기술적 판단 근거
@@ -1041,6 +1066,28 @@ analyzeBtn.addEventListener(
         displayValue(
           plan.tradeQuality
         );
+document.getElementById(
+  "entryDecision"
+).textContent =
+  displayValue(
+    data.entryDecision?.entryDecision
+  );
+
+document.getElementById(
+  "entryDistance"
+).textContent =
+  data.entryDecision?.entryDistancePct !== null &&
+  data.entryDecision?.entryDistancePct !== undefined
+    ? data.entryDecision.entryDistancePct + "%"
+    : "계산 불가";
+
+document.getElementById(
+  "decisionReason"
+).textContent =
+  displayValue(
+    data.entryDecision?.decisionReason
+  );
+      
 document.getElementById(
   "calculationBase"
 ).textContent =
