@@ -568,7 +568,10 @@ V5 위험관리 매매 계획
 </strong>
 
 </div>
-
+<div class="plan-row">
+  <span>손익비 계산 기준</span>
+  <strong id="calculationBase">-</strong>
+</div>
 </div>
 
 
@@ -1038,7 +1041,12 @@ analyzeBtn.addEventListener(
         displayValue(
           plan.tradeQuality
         );
-
+document.getElementById(
+  "calculationBase"
+).textContent =
+  displayValue(
+    plan.calculationBase
+  );
 
       document.getElementById(
         "strategy"
