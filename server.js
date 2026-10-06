@@ -619,7 +619,79 @@ function calculateTradePlan(data, technical) {
     strategy
   };
 }
+// ==========================================
+// V7 진입 의사결정
+// 현재가와 V6 매매계획을 이용하여
+// 지금 진입 / 눌림목 대기 / 돌파 대기 / 관망 구분
+// ==========================================
 
+function calculateEntryDecision(data, technical, plan) {
+
+  const price = num(data.price);
+  const resistance = num(data.resistance);
+  const entry = num(plan?.entryCandidate);
+
+  if (price === null || entry === null) {
+    return {
+      entryDecision: "관망",
+      entryDistancePct: null,
+      decisionReason:
+        "현재가 또는 진입 후보가를 확인할 수 없습니다."
+    };
+  }
+
+  const entryDistancePct =
+    ((price - entry) / price) * 100;
+
+  let entryDecision = "관망";
+  let decisionReason =
+    "추가적인 가격 움직임을 확인합니다.";
+
+  // 강한 매수 신호
+  if (
+    technical.score >= 4 &&
+    entryDistancePct <= 1
+  ) {
+    entryDecision = "지금 진입";
+    decisionReason =
+      "기술적 매수 신호가 강하고 현재가가 진입 후보가에 근접해 있습니다.";
+  }
+
+  // 매수 신호는 있으나 진입가까지 기다리는 경우
+  else if (
+    technical.score >= 2 &&
+    entryDistancePct > 1
+  ) {
+    entryDecision = "눌림목 대기";
+    decisionReason =
+      `기술적 매수 신호는 있으나 진입 후보가까지 약 ${entryDistancePct.toFixed(1)}%의 가격 조정 여지가 있습니다.`;
+  }
+
+  // 상승 추세이나 신호가 아직 약한 경우
+  else if (
+    technical.score >= 0 &&
+    resistance !== null &&
+    resistance > price
+  ) {
+    entryDecision = "돌파 대기";
+    decisionReason =
+      "상승 흐름은 유지되고 있으나 기술적 신호가 충분히 강하지 않아 저항선 돌파 여부를 확인합니다.";
+  }
+
+  // 나머지
+  else {
+    entryDecision = "관망";
+    decisionReason =
+      "현재 기술적 조건에서는 신규 진입을 서두를 필요가 없습니다.";
+  }
+
+  return {
+    entryDecision,
+    entryDistancePct:
+      Number(entryDistancePct.toFixed(1)),
+    decisionReason
+  };
+}
 
 // ==========================================
 // 이미지 분석 API
@@ -786,7 +858,12 @@ confidence
           extracted,
           technical
         );
-
+const entryDecision =
+  calculateEntryDecision(
+    extracted,
+    technical,
+    tradePlan
+  );
 
       const result = {
 
@@ -805,7 +882,8 @@ confidence
         reasons:
           technical.reasons,
 
-        tradePlan
+     tradePlan,
+entryDecision
       };
 
 
