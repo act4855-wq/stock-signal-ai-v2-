@@ -32,16 +32,18 @@ function num(value) {
 
 function roundPrice(value) {
   if (value === null || !Number.isFinite(value)) return null;
-
-  if (value < 10) return Number(value.toFixed(2));
-  if (value < 100) return Number(value.toFixed(2));
   return Number(value.toFixed(2));
 }
 
+function roundPercent(value) {
+  if (value === null || !Number.isFinite(value)) return null;
+  return Number(value.toFixed(1));
+}
 
-// ===============================
-// 기술적 지표 점수 계산
-// ===============================
+
+// ==========================================
+// 기술적 지표 점수
+// ==========================================
 
 function calculateSignal(data) {
 
@@ -59,27 +61,22 @@ function calculateSignal(data) {
   if (rsi !== null) {
 
     if (rsi <= 30) {
-
       score += 2;
       reasons.push(`RSI ${rsi}: 과매도권`);
 
     } else if (rsi < 45) {
-
       score += 1;
       reasons.push(`RSI ${rsi}: 낮은 구간`);
 
     } else if (rsi >= 70) {
-
       score -= 2;
       reasons.push(`RSI ${rsi}: 과매수권`);
 
     } else if (rsi > 60) {
-
       score -= 1;
       reasons.push(`RSI ${rsi}: 높은 구간`);
 
     } else {
-
       reasons.push(`RSI ${rsi}: 중립권`);
     }
   }
@@ -139,7 +136,6 @@ function calculateSignal(data) {
     if (macd > macdSignal) {
 
       score += 2;
-
       reasons.push(
         `MACD ${macd} > Signal ${macdSignal}`
       );
@@ -147,7 +143,6 @@ function calculateSignal(data) {
     } else if (macd < macdSignal) {
 
       score -= 2;
-
       reasons.push(
         `MACD ${macd} < Signal ${macdSignal}`
       );
@@ -158,19 +153,15 @@ function calculateSignal(data) {
   let signal = "관망";
 
   if (score >= 4) {
-
     signal = "매수 후보";
 
   } else if (score >= 2) {
-
     signal = "약한 매수 후보";
 
   } else if (score <= -4) {
-
     signal = "매도 후보";
 
   } else if (score <= -2) {
-
     signal = "약한 매도 후보";
   }
 
@@ -183,10 +174,9 @@ function calculateSignal(data) {
 }
 
 
-
-// ===============================
-// V4 매매 계획 계산
-// ===============================
+// ==========================================
+// V5 위험관리 / 매매계획
+// ==========================================
 
 function calculateTradePlan(data, technical) {
 
@@ -201,44 +191,51 @@ function calculateTradePlan(data, technical) {
       entryCandidate: null,
       target1: null,
       stopLoss: null,
+
+      targetSource: "계산 불가",
+      stopSource: "계산 불가",
+
+      expectedGainPct: null,
+      expectedLossPct: null,
+      riskReward: null,
+
       riskLevel: "판단 불가",
-      strategy: "현재가를 판독할 수 없어 매매 계획을 계산하지 못했습니다."
+      tradeQuality: "판단 불가",
+
+      strategy:
+        "현재가를 판독할 수 없어 위험관리 계산을 할 수 없습니다."
     };
   }
 
 
-  let entryStatus = "대기";
+  // ------------------------------------------
+  // 1. 진입 후보가
+  // ------------------------------------------
+
   let entryCandidate = null;
-  let target1 = null;
-  let stopLoss = null;
-  let riskLevel = "보통";
-  let strategy = "추가 확인이 필요합니다.";
-
-
-  // -------------------------------
-  // 진입 후보가
-  // -------------------------------
 
   if (support !== null && support < price) {
 
-    const distance =
+    const supportDistance =
       (price - support) / price;
 
-    // 지지선이 너무 멀면
-    // 현재가의 3% 아래를 1차 관찰구간으로 사용
-    if (distance > 0.15) {
+    /*
+      지지선이 현재가에서 12% 이상 멀면
+      해당 지지선을 단기 진입가로 사용하지 않는다.
+    */
 
-      entryCandidate =
-        roundPrice(price * 0.97);
+    if (supportDistance <= 0.12) {
 
-    } else {
-
-      // 지지선보다 약간 위
       entryCandidate =
         roundPrice(
           support +
-          (price - support) * 0.20
+          (price - support) * 0.25
         );
+
+    } else {
+
+      entryCandidate =
+        roundPrice(price * 0.97);
     }
 
   } else {
@@ -248,46 +245,203 @@ function calculateTradePlan(data, technical) {
   }
 
 
-  // -------------------------------
-  // 목표가
-  // -------------------------------
+  // ------------------------------------------
+  // 2. 목표가
+  // ------------------------------------------
+
+  let target1 = null;
+  let targetSource = "";
+
 
   if (
     resistance !== null &&
     resistance > price
   ) {
 
-    target1 = roundPrice(resistance);
+    target1 =
+      roundPrice(resistance);
+
+    targetSource =
+      "차트 저항선";
 
   } else {
 
+    /*
+      저항선을 읽지 못한 경우
+      목표가를 현재가 +5%로 자동 계산.
+      화면에서는 반드시 '계산값'이라고 표시한다.
+    */
+
     target1 =
       roundPrice(price * 1.05);
+
+    targetSource =
+      "계산값 (+5%)";
   }
 
 
-  // -------------------------------
-  // 손절 기준
-  // -------------------------------
+  // ------------------------------------------
+  // 3. 손절 기준
+  // ------------------------------------------
+
+  let stopLoss = null;
+  let stopSource = "";
+
 
   if (
     support !== null &&
     support < price
   ) {
 
-    stopLoss =
-      roundPrice(support * 0.97);
+    const supportDistance =
+      (price - support) / price;
+
+
+    /*
+      핵심 변경:
+      지지선이 현재가에서 10%보다 멀면
+      해당 지지선을 손절가로 사용하지 않는다.
+    */
+
+    if (supportDistance <= 0.10) {
+
+      stopLoss =
+        roundPrice(support * 0.98);
+
+      stopSource =
+        "차트 지지선 기준";
+
+    } else {
+
+      stopLoss =
+        roundPrice(price * 0.95);
+
+      stopSource =
+        "위험관리 계산값 (-5%)";
+    }
 
   } else {
 
     stopLoss =
       roundPrice(price * 0.95);
+
+    stopSource =
+      "위험관리 계산값 (-5%)";
   }
 
 
-  // -------------------------------
-  // 위험도
-  // -------------------------------
+  // ------------------------------------------
+  // 4. 예상 수익률 / 손실률
+  // ------------------------------------------
+
+  let expectedGainPct = null;
+  let expectedLossPct = null;
+
+
+  if (target1 !== null) {
+
+    expectedGainPct =
+      roundPercent(
+        ((target1 - price) / price) * 100
+      );
+  }
+
+
+  if (stopLoss !== null) {
+
+    expectedLossPct =
+      roundPercent(
+        ((price - stopLoss) / price) * 100
+      );
+  }
+
+
+  // ------------------------------------------
+  // 5. 손익비
+  // Reward / Risk
+  // ------------------------------------------
+
+  let riskReward = null;
+
+
+  if (
+    expectedGainPct !== null &&
+    expectedLossPct !== null &&
+    expectedLossPct > 0
+  ) {
+
+    riskReward =
+      Number(
+        (
+          expectedGainPct /
+          expectedLossPct
+        ).toFixed(2)
+      );
+  }
+
+
+  // ------------------------------------------
+  // 6. 위험도
+  // ------------------------------------------
+
+  let riskLevel = "보통";
+
+
+  if (
+    expectedLossPct !== null &&
+    expectedLossPct > 7
+  ) {
+
+    riskLevel = "높음";
+
+  } else if (
+    expectedLossPct !== null &&
+    expectedLossPct <= 4
+  ) {
+
+    riskLevel = "낮음";
+  }
+
+
+  // ------------------------------------------
+  // 7. 매매 적합성
+  // ------------------------------------------
+
+  let tradeQuality = "관찰";
+
+
+  if (riskReward !== null) {
+
+    if (
+      riskReward >= 2 &&
+      technical.score >= 2
+    ) {
+
+      tradeQuality =
+        "양호";
+
+    } else if (
+      riskReward >= 1.5 &&
+      technical.score >= 1
+    ) {
+
+      tradeQuality =
+        "보통";
+
+    } else {
+
+      tradeQuality =
+        "진입 보류";
+    }
+  }
+
+
+  // ------------------------------------------
+  // 8. 진입 판단
+  // ------------------------------------------
+
+  let entryStatus = "관망";
+
 
   if (
     resistance !== null &&
@@ -300,92 +454,122 @@ function calculateTradePlan(data, technical) {
 
     if (resistanceDistance <= 0.03) {
 
-      riskLevel = "높음";
-
-    } else if (resistanceDistance <= 0.07) {
-
-      riskLevel = "보통";
-
-    } else {
-
-      riskLevel = "낮음";
+      entryStatus =
+        "저항 근접 - 추격주의";
     }
   }
 
 
-  // -------------------------------
-  // 최종 전략
-  // -------------------------------
-
   if (
-    resistance !== null &&
-    resistance > price &&
-    (resistance - price) / price <= 0.03
+    entryStatus === "관망"
   ) {
 
-    entryStatus = "추격매수 주의";
+    if (
+      technical.score >= 4 &&
+      tradeQuality !== "진입 보류"
+    ) {
 
-    strategy =
-      `현재가가 저항선 ${resistance}에 근접했습니다. ` +
-      `저항 돌파 확인 또는 눌림목을 기다리는 전략이 유리합니다.`;
+      entryStatus =
+        "매수 후보";
 
+    } else if (
+      technical.score >= 2 &&
+      tradeQuality !== "진입 보류"
+    ) {
+
+      entryStatus =
+        "분할매수 관찰";
+
+    } else if (
+      technical.score <= -2
+    ) {
+
+      entryStatus =
+        "신규매수 보류";
+
+    } else {
+
+      entryStatus =
+        "관망";
+    }
   }
 
-  else if (technical.score >= 4) {
 
-    entryStatus = "매수 후보";
+  // ------------------------------------------
+  // 9. 전략 문장
+  // ------------------------------------------
 
-    strategy =
-      `기술적 지표가 강한 매수 후보입니다. ` +
-      `진입 후보가 부근에서 지지 여부를 확인하는 전략입니다.`;
+  let strategy = "";
 
-  }
 
-  else if (technical.score >= 2) {
-
-    entryStatus = "분할매수 관찰";
-
-    strategy =
-      `상승 신호가 있으나 강하지 않습니다. ` +
-      `진입 후보가 부근에서 분할 접근을 검토할 수 있습니다.`;
-
-  }
-
-  else if (technical.score <= -2) {
-
-    entryStatus = "매수 보류";
+  if (
+    riskReward !== null &&
+    riskReward < 1
+  ) {
 
     strategy =
-      `기술적 약세 신호가 우세합니다. ` +
-      `추가 하락 여부를 확인할 때까지 신규 진입을 보류하는 전략입니다.`;
+      `예상 손익비가 ${riskReward}:1로 불리합니다. ` +
+      `현재 가격에서 신규 진입보다 더 좋은 가격을 기다리는 편이 유리합니다.`;
 
-  }
-
-  else {
-
-    entryStatus = "관망";
+  } else if (
+    tradeQuality === "진입 보류"
+  ) {
 
     strategy =
-      `신호가 혼재되어 있습니다. ` +
-      `현재가 추격보다 진입 후보가 또는 저항 돌파 여부를 기다립니다.`;
+      `기술적 신호와 손익비를 함께 고려하면 현재 위치는 신규 진입에 유리하지 않습니다. ` +
+      `눌림목 또는 새로운 저항 돌파 확인을 기다립니다.`;
+
+  } else if (
+    entryStatus.includes("저항")
+  ) {
+
+    strategy =
+      `현재가가 차트 저항선에 가깝습니다. ` +
+      `추격 진입보다 저항 돌파 확인 또는 눌림목을 기다립니다.`;
+
+  } else if (
+    technical.score >= 2
+  ) {
+
+    strategy =
+      `기술적 상승 신호가 확인됩니다. ` +
+      `진입 후보가 부근에서 지지 여부를 확인하고 손절 기준을 지키는 전략입니다.`;
+
+  } else {
+
+    strategy =
+      `기술적 신호가 혼재되어 있습니다. ` +
+      `현재가 추격보다 진입 후보가 또는 추가 상승 확인을 기다립니다.`;
   }
 
 
   return {
+
     entryStatus,
     entryCandidate,
+
     target1,
+    targetSource,
+
     stopLoss,
+    stopSource,
+
+    expectedGainPct,
+    expectedLossPct,
+
+    riskReward,
+
     riskLevel,
+    tradeQuality,
+
     strategy
   };
 }
 
 
-
-// ===============================
+// ==========================================
 // 이미지 분석 API
-// ===============================
+// ==========================================
 
 app.post(
   "/api/analyze",
@@ -414,7 +598,7 @@ app.post(
 
       const ticker =
         (req.body.ticker || "")
-        .toUpperCase();
+          .toUpperCase();
 
 
       const timeframe =
@@ -436,12 +620,22 @@ ${timeframe}
 
 - 이미지에서 실제로 읽을 수 있는 정보만 반환한다.
 - 숫자가 명확하지 않으면 null을 반환한다.
-- 숫자를 추측해서 만들지 않는다.
-- 매수 또는 매도 판단은 하지 않는다.
+- 절대로 보이지 않는 숫자를 추측해서 만들지 않는다.
+- 매수 또는 매도 판단을 하지 않는다.
+- 목표가와 손절가를 임의로 만들지 않는다.
 - confidence는 투자 성공 확률이 아니라 이미지 판독 신뢰도다.
+
 - 미국 주식 가격이 달러로 표시되어 있으면 숫자만 반환한다.
-- support와 resistance도 숫자로 명확히 확인되는 경우에만 반환한다.
-- 차트에 표시된 명확한 저점 또는 고점 가격 표기가 있으면 support/resistance로 사용할 수 있다.
+
+- support는 차트에 명확히 표시된 저점 또는 지지 가격을
+  실제로 읽을 수 있는 경우에만 숫자로 반환한다.
+
+- resistance는 차트에 명확히 표시된 고점 또는 저항 가격을
+  실제로 읽을 수 있는 경우에만 숫자로 반환한다.
+
+- 명확하지 않으면 support 또는 resistance는 null이다.
+
+- invalidation도 이미지에 명시적으로 확인되는 경우에만 반환한다.
 
 
 다음을 추출한다.
@@ -519,10 +713,10 @@ confidence
 
       let text =
         response.output_text
-        .trim()
-        .replace(/^```json\s*/i, "")
-        .replace(/```$/i, "")
-        .trim();
+          .trim()
+          .replace(/^```json\s*/i, "")
+          .replace(/```$/i, "")
+          .trim();
 
 
       const extracted =
@@ -568,6 +762,7 @@ confidence
 
       console.error(error);
 
+
       res.status(500).json({
 
         error:
@@ -578,11 +773,9 @@ confidence
           String(error)
 
       });
-
     }
   }
 );
-
 
 
 const PORT =
@@ -596,7 +789,7 @@ app.listen(
   () => {
 
     console.log(
-      `Stock Signal AI V4 running on port ${PORT}`
+      `Stock Signal AI V5 running on port ${PORT}`
     );
 
   }
