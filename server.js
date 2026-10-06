@@ -175,7 +175,10 @@ function calculateSignal(data) {
 
 
 // ==========================================
-// V5 위험관리 / 매매계획
+// V6 위험관리 / 매매계획
+// 핵심:
+// 예상수익률, 예상손실률, 손익비는
+// 현재가가 아니라 "진입 후보가" 기준으로 계산
 // ==========================================
 
 function calculateTradePlan(data, technical) {
@@ -202,6 +205,8 @@ function calculateTradePlan(data, technical) {
       riskLevel: "판단 불가",
       tradeQuality: "판단 불가",
 
+      calculationBase: "계산 불가",
+
       strategy:
         "현재가를 판독할 수 없어 위험관리 계산을 할 수 없습니다."
     };
@@ -220,8 +225,11 @@ function calculateTradePlan(data, technical) {
       (price - support) / price;
 
     /*
-      지지선이 현재가에서 12% 이상 멀면
-      해당 지지선을 단기 진입가로 사용하지 않는다.
+      지지선이 현재가에서 12% 이내면
+      지지선과 현재가 사이의 25% 위치를 진입 후보로 사용.
+
+      지지선이 너무 멀면
+      현재가보다 3% 낮은 가격을 관찰 진입 후보로 사용.
     */
 
     if (supportDistance <= 0.12) {
@@ -255,7 +263,7 @@ function calculateTradePlan(data, technical) {
 
   if (
     resistance !== null &&
-    resistance > price
+    resistance > entryCandidate
   ) {
 
     target1 =
@@ -267,16 +275,16 @@ function calculateTradePlan(data, technical) {
   } else {
 
     /*
-      저항선을 읽지 못한 경우
-      목표가를 현재가 +5%로 자동 계산.
-      화면에서는 반드시 '계산값'이라고 표시한다.
+      저항선을 판독하지 못한 경우에는
+      기존 V5와 동일하게 현재가 +5%를
+      계산 목표가로 사용한다.
     */
 
     target1 =
       roundPrice(price * 1.05);
 
     targetSource =
-      "계산값 (+5%)";
+      "계산값 (현재가 +5%)";
   }
 
 
@@ -290,20 +298,21 @@ function calculateTradePlan(data, technical) {
 
   if (
     support !== null &&
-    support < price
+    support < entryCandidate
   ) {
 
-    const supportDistance =
-      (price - support) / price;
+    const supportDistanceFromEntry =
+      (entryCandidate - support) /
+      entryCandidate;
 
 
     /*
-      핵심 변경:
-      지지선이 현재가에서 10%보다 멀면
-      해당 지지선을 손절가로 사용하지 않는다.
+      지지선이 실제 진입 후보가에서
+      10% 이내에 있을 때만
+      차트 지지선을 손절 기준으로 사용.
     */
 
-    if (supportDistance <= 0.10) {
+    if (supportDistanceFromEntry <= 0.10) {
 
       stopLoss =
         roundPrice(support * 0.98);
@@ -314,50 +323,70 @@ function calculateTradePlan(data, technical) {
     } else {
 
       stopLoss =
-        roundPrice(price * 0.95);
+        roundPrice(entryCandidate * 0.98);
 
       stopSource =
-        "위험관리 계산값 (-5%)";
+        "위험관리 계산값 (진입가 -2%)";
     }
 
   } else {
 
     stopLoss =
-      roundPrice(price * 0.95);
+      roundPrice(entryCandidate * 0.98);
 
     stopSource =
-      "위험관리 계산값 (-5%)";
+      "위험관리 계산값 (진입가 -2%)";
   }
 
 
   // ------------------------------------------
-  // 4. 예상 수익률 / 손실률
+  // 4. 예상 수익률
+  // 진입 후보가 → 목표가
   // ------------------------------------------
 
   let expectedGainPct = null;
-  let expectedLossPct = null;
 
-
-  if (target1 !== null) {
+  if (
+    entryCandidate !== null &&
+    target1 !== null &&
+    target1 > entryCandidate
+  ) {
 
     expectedGainPct =
       roundPercent(
-        ((target1 - price) / price) * 100
-      );
-  }
-
-
-  if (stopLoss !== null) {
-
-    expectedLossPct =
-      roundPercent(
-        ((price - stopLoss) / price) * 100
+        (
+          (target1 - entryCandidate) /
+          entryCandidate
+        ) * 100
       );
   }
 
 
   // ------------------------------------------
-  // 5. 손익비
+  // 5. 예상 손실률
+  // 진입 후보가 → 손절가
+  // ------------------------------------------
+
+  let expectedLossPct = null;
+
+  if (
+    entryCandidate !== null &&
+    stopLoss !== null &&
+    stopLoss < entryCandidate
+  ) {
+
+    expectedLossPct =
+      roundPercent(
+        (
+          (entryCandidate - stopLoss) /
+          entryCandidate
+        ) * 100
+      );
+  }
+
+
+  // ------------------------------------------
+  // 6. 손익비
   // Reward / Risk
   // ------------------------------------------
 
@@ -365,23 +394,33 @@ function calculateTradePlan(data, technical) {
 
 
   if (
-    expectedGainPct !== null &&
-    expectedLossPct !== null &&
-    expectedLossPct > 0
+    entryCandidate !== null &&
+    target1 !== null &&
+    stopLoss !== null &&
+    target1 > entryCandidate &&
+    stopLoss < entryCandidate
   ) {
 
-    riskReward =
-      Number(
-        (
-          expectedGainPct /
-          expectedLossPct
-        ).toFixed(2)
-      );
+    const reward =
+      target1 - entryCandidate;
+
+    const risk =
+      entryCandidate - stopLoss;
+
+
+    if (risk > 0) {
+
+      riskReward =
+        Number(
+          (reward / risk).toFixed(2)
+        );
+    }
   }
 
 
   // ------------------------------------------
-  // 6. 위험도
+  // 7. 위험도
+  // 실제 진입가 기준 예상손실률 사용
   // ------------------------------------------
 
   let riskLevel = "보통";
@@ -396,15 +435,20 @@ function calculateTradePlan(data, technical) {
 
   } else if (
     expectedLossPct !== null &&
-    expectedLossPct <= 4
+    expectedLossPct <= 3
   ) {
 
     riskLevel = "낮음";
+
+  } else {
+
+    riskLevel = "보통";
   }
 
 
   // ------------------------------------------
-  // 7. 매매 적합성
+  // 8. 매매 적합성
+  // 손익비 + 기술적 점수 결합
   // ------------------------------------------
 
   let tradeQuality = "관찰";
@@ -437,11 +481,16 @@ function calculateTradePlan(data, technical) {
 
 
   // ------------------------------------------
-  // 8. 진입 판단
+  // 9. 진입 판단
   // ------------------------------------------
 
   let entryStatus = "관망";
 
+
+  /*
+    현재가가 차트 저항선에 3% 이내로
+    접근한 경우에는 추격매수 경고를 우선한다.
+  */
 
   if (
     resistance !== null &&
@@ -460,9 +509,7 @@ function calculateTradePlan(data, technical) {
   }
 
 
-  if (
-    entryStatus === "관망"
-  ) {
+  if (entryStatus === "관망") {
 
     if (
       technical.score >= 4 &&
@@ -496,7 +543,7 @@ function calculateTradePlan(data, technical) {
 
 
   // ------------------------------------------
-  // 9. 전략 문장
+  // 10. 전략 문장
   // ------------------------------------------
 
   let strategy = "";
@@ -508,16 +555,19 @@ function calculateTradePlan(data, technical) {
   ) {
 
     strategy =
-      `예상 손익비가 ${riskReward}:1로 불리합니다. ` +
-      `현재 가격에서 신규 진입보다 더 좋은 가격을 기다리는 편이 유리합니다.`;
+      `진입 후보가 ${entryCandidate} 기준 예상 손익비가 ` +
+      `${riskReward}:1로 불리합니다. ` +
+      `현재 위치에서 신규 진입보다 더 좋은 가격을 기다립니다.`;
 
   } else if (
     tradeQuality === "진입 보류"
   ) {
 
     strategy =
-      `기술적 신호와 손익비를 함께 고려하면 현재 위치는 신규 진입에 유리하지 않습니다. ` +
-      `눌림목 또는 새로운 저항 돌파 확인을 기다립니다.`;
+      `진입 후보가 ${entryCandidate} 기준 손익비는 ` +
+      `${riskReward !== null ? riskReward + ":1" : "계산 불가"}이지만 ` +
+      `기술적 신호가 충분하지 않습니다. ` +
+      `눌림목 또는 추가 상승 확인을 기다립니다.`;
 
   } else if (
     entryStatus.includes("저항")
@@ -532,14 +582,15 @@ function calculateTradePlan(data, technical) {
   ) {
 
     strategy =
-      `기술적 상승 신호가 확인됩니다. ` +
-      `진입 후보가 부근에서 지지 여부를 확인하고 손절 기준을 지키는 전략입니다.`;
+      `진입 후보가 ${entryCandidate} 부근에서 지지를 확인합니다. ` +
+      `목표가 ${target1}, 손절 기준 ${stopLoss}, ` +
+      `예상 손익비는 ${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다.`;
 
   } else {
 
     strategy =
-      `기술적 신호가 혼재되어 있습니다. ` +
-      `현재가 추격보다 진입 후보가 또는 추가 상승 확인을 기다립니다.`;
+      `손익비가 양호하더라도 기술적 신호가 아직 강하지 않습니다. ` +
+      `현재가 추격보다 진입 후보가 ${entryCandidate} 부근의 가격 움직임을 확인합니다.`;
   }
 
 
@@ -561,6 +612,9 @@ function calculateTradePlan(data, technical) {
 
     riskLevel,
     tradeQuality,
+
+    calculationBase:
+      "진입 후보가 기준",
 
     strategy
   };
@@ -789,7 +843,7 @@ app.listen(
   () => {
 
     console.log(
-      `Stock Signal AI V5 running on port ${PORT}`
+      `Stock Signal AI V6 running on port ${PORT}`
     );
 
   }
