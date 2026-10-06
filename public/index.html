@@ -4,12 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Stock Signal AI V4</title>
+<title>Stock Signal AI V5</title>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -51,8 +49,7 @@ label {
   font-size: 14px;
 }
 
-input,
-select {
+input, select {
   width: 100%;
   padding: 14px;
   border-radius: 10px;
@@ -69,10 +66,6 @@ select {
   padding: 22px;
   text-align: center;
   margin-bottom: 16px;
-}
-
-.upload-box input {
-  margin: 10px 0 0;
 }
 
 #preview {
@@ -108,9 +101,13 @@ button:disabled {
   color: #7db7ff;
 }
 
-#result {
-  display: none;
+#error {
+  color: #ff7474;
+  margin-top: 14px;
+  white-space: pre-wrap;
 }
+
+#result { display: none; }
 
 .signal-box {
   text-align: center;
@@ -174,33 +171,23 @@ button:disabled {
   border-bottom: 1px solid #28425f;
 }
 
-.row span:first-child {
-  color: #bcd3eb;
-}
+.row span:first-child { color: #bcd3eb; }
 
-.row strong {
-  text-align: right;
-}
-
-.section-title {
-  font-size: 20px;
-  font-weight: bold;
-  margin: 25px 0 12px;
-}
+.row strong { text-align: right; }
 
 .trade-plan {
-  margin-top: 22px;
+  margin-top: 25px;
   padding: 20px;
   border-radius: 16px;
   background: #091a2f;
   border: 1px solid #28598b;
 }
 
-.trade-plan-title {
-  font-size: 22px;
+.trade-title {
+  font-size: 24px;
   font-weight: bold;
   color: #65b2ff;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .plan-grid {
@@ -212,7 +199,7 @@ button:disabled {
 .plan-item {
   background: #0c2340;
   border-radius: 12px;
-  padding: 15px;
+  padding: 16px;
 }
 
 .plan-label {
@@ -226,12 +213,72 @@ button:disabled {
   font-weight: bold;
 }
 
+.source {
+  margin-top: 7px;
+  font-size: 12px;
+  color: #91a9c2;
+}
+
+.risk-box {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #0d2947;
+}
+
+.risk-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #6eb5ff;
+  margin-bottom: 14px;
+}
+
+.risk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.risk-item {
+  text-align: center;
+  background: #081b31;
+  border-radius: 10px;
+  padding: 14px 8px;
+}
+
+.risk-label {
+  font-size: 12px;
+  color: #91b4d8;
+}
+
+.risk-value {
+  margin-top: 7px;
+  font-size: 19px;
+  font-weight: bold;
+}
+
+.quality {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #102947;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
 .strategy {
   margin-top: 16px;
   padding: 17px;
   background: #102947;
   border-radius: 12px;
   line-height: 1.65;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 25px 0 12px;
 }
 
 #reasons {
@@ -250,19 +297,18 @@ button:disabled {
   font-size: 14px;
 }
 
-.error {
-  color: #ff7474;
-  margin-top: 14px;
-  white-space: pre-wrap;
-}
-
 @media (max-width: 650px) {
+
   .indicators {
     grid-template-columns: 1fr;
   }
 
   .plan-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .risk-grid {
+    grid-template-columns: 1fr;
   }
 
   .signal-title {
@@ -276,12 +322,11 @@ button:disabled {
 
 <div class="container">
 
-<h1>STOCK SIGNAL AI V4</h1>
+<h1>STOCK SIGNAL AI V5</h1>
 
 <div class="subtitle">
-차트 한 장으로 기술적 지표 판독 + 매매계획 계산
+차트 판독 + 기술적 신호 + 위험관리 분석
 </div>
-
 
 <div class="card">
 
@@ -293,7 +338,6 @@ button:disabled {
   value="TSLL"
   placeholder="예: TSLA, TSLL, NVDA"
 >
-
 
 <label>차트 시간봉</label>
 
@@ -307,12 +351,9 @@ button:disabled {
   <option value="주봉">주봉</option>
 </select>
 
-
 <div class="upload-box">
 
-<div>
-차트 스크린샷을 선택하세요
-</div>
+<div>차트 스크린샷을 선택하세요</div>
 
 <input
   id="image"
@@ -327,68 +368,50 @@ button:disabled {
 
 </div>
 
-
 <button id="analyzeBtn">
 AI 자동 분석
 </button>
 
-
 <div id="loading">
-차트를 분석하고 있습니다...
+차트를 분석하고 위험도를 계산하고 있습니다...
 </div>
 
-<div id="error" class="error"></div>
+<div id="error"></div>
 
 </div>
-
 
 
 <div id="result" class="card">
 
-
 <div class="signal-box">
 
-<div
-  id="signal"
-  class="signal-title">
--
-</div>
+<div id="signal" class="signal-title">-</div>
 
-<div
-  id="confidence"
-  class="confidence">
--
-</div>
+<div id="confidence" class="confidence">-</div>
 
-<div
-  id="score"
-  class="score">
--
-</div>
+<div id="score" class="score">-</div>
 
 </div>
-
 
 
 <div class="indicators">
 
 <div class="indicator">
-  <div class="name">RSI</div>
-  <div id="rsi" class="value">-</div>
+<div class="name">RSI</div>
+<div id="rsi" class="value">-</div>
 </div>
 
 <div class="indicator">
-  <div class="name">STOCH K/D</div>
-  <div id="stoch" class="value">-</div>
+<div class="name">STOCH K/D</div>
+<div id="stoch" class="value">-</div>
 </div>
 
 <div class="indicator">
-  <div class="name">MACD</div>
-  <div id="macd" class="value">-</div>
+<div class="name">MACD</div>
+<div id="macd" class="value">-</div>
 </div>
 
 </div>
-
 
 
 <div class="row">
@@ -407,12 +430,12 @@ AI 자동 분석
 </div>
 
 <div class="row">
-<span>지지선</span>
+<span>차트 판독 지지선</span>
 <strong id="support">-</strong>
 </div>
 
 <div class="row">
-<span>저항선</span>
+<span>차트 판독 저항선</span>
 <strong id="resistance">-</strong>
 </div>
 
@@ -422,11 +445,10 @@ AI 자동 분석
 </div>
 
 
-
 <div class="trade-plan">
 
-<div class="trade-plan-title">
-V4 매매 계획
+<div class="trade-title">
+V5 위험관리 매매 계획
 </div>
 
 
@@ -442,19 +464,109 @@ V4 매매 계획
 <div id="entryCandidate" class="plan-value">-</div>
 </div>
 
+
 <div class="plan-item">
+
 <div class="plan-label">1차 목표가</div>
+
 <div id="target1" class="plan-value">-</div>
+
+<div id="targetSource" class="source">-</div>
+
 </div>
 
+
 <div class="plan-item">
+
 <div class="plan-label">손절 기준</div>
+
 <div id="stopLoss" class="plan-value">-</div>
+
+<div id="stopSource" class="source">-</div>
+
 </div>
 
-<div class="plan-item">
-<div class="plan-label">위험도</div>
-<div id="riskLevel" class="plan-value">-</div>
+</div>
+
+
+<div class="risk-box">
+
+<div class="risk-title">
+손익비 분석
+</div>
+
+<div class="risk-grid">
+
+<div class="risk-item">
+
+<div class="risk-label">
+예상 수익률
+</div>
+
+<div
+  id="expectedGain"
+  class="risk-value">
+-
+</div>
+
+</div>
+
+
+<div class="risk-item">
+
+<div class="risk-label">
+예상 손실률
+</div>
+
+<div
+  id="expectedLoss"
+  class="risk-value">
+-
+</div>
+
+</div>
+
+
+<div class="risk-item">
+
+<div class="risk-label">
+손익비 (Reward / Risk)
+</div>
+
+<div
+  id="riskReward"
+  class="risk-value">
+-
+</div>
+
+</div>
+
+</div>
+
+
+<div class="quality">
+
+<div>
+위험도
+</div>
+
+<strong id="riskLevel">
+-
+</strong>
+
+</div>
+
+
+<div class="quality">
+
+<div>
+매매 적합성
+</div>
+
+<strong id="tradeQuality">
+-
+</strong>
+
 </div>
 
 </div>
@@ -462,7 +574,7 @@ V4 매매 계획
 
 <div class="strategy">
 
-<strong>한 줄 전략</strong>
+<strong>최종 전략</strong>
 
 <div
   id="strategy"
@@ -475,9 +587,8 @@ V4 매매 계획
 </div>
 
 
-
 <div class="section-title">
-판단 근거
+기술적 판단 근거
 </div>
 
 <ul id="reasons"></ul>
@@ -485,18 +596,18 @@ V4 매매 계획
 
 <div class="notice">
 
-이미지에서 확인할 수 없는 지표값은 추정하지 않습니다.
-진입 후보가·목표가·손절 기준은 차트에서 판독한 가격과
-기술적 지표를 이용한 규칙 기반 참고값입니다.
-실시간 시세가 아니며 미래 수익을 보장하지 않습니다.
+이미지에서 확인할 수 없는 지표와 가격은 추정하지 않습니다.
+차트에서 직접 판독한 지지선·저항선과 프로그램이 계산한
+목표가·손절가는 구분해서 표시합니다.
+
+손익비와 위험도는 차트 캡처 시점의 기술적 참고값이며
+실시간 시세나 미래 수익을 보장하지 않습니다.
 
 </div>
 
-
 </div>
 
 </div>
-
 
 
 <script>
@@ -520,7 +631,6 @@ const errorBox =
   document.getElementById("error");
 
 
-
 imageInput.addEventListener(
   "change",
   function () {
@@ -529,13 +639,9 @@ imageInput.addEventListener(
       imageInput.files[0];
 
     if (!file) {
-
-      preview.style.display =
-        "none";
-
+      preview.style.display = "none";
       return;
     }
-
 
     const url =
       URL.createObjectURL(file);
@@ -544,10 +650,8 @@ imageInput.addEventListener(
 
     preview.style.display =
       "block";
-
   }
 );
-
 
 
 function displayValue(value) {
@@ -557,13 +661,11 @@ function displayValue(value) {
     value === undefined ||
     value === ""
   ) {
-
     return "판독 불가";
   }
 
   return value;
 }
-
 
 
 function displayPrice(value) {
@@ -573,7 +675,6 @@ function displayPrice(value) {
     value === undefined ||
     value === ""
   ) {
-
     return "판독 불가";
   }
 
@@ -581,11 +682,33 @@ function displayPrice(value) {
 }
 
 
+function displayPercent(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return "계산 불가";
+  }
+
+  const n = Number(value);
+
+  if (!Number.isFinite(n)) {
+    return "계산 불가";
+  }
+
+  return (
+    (n > 0 ? "+" : "") +
+    n +
+    "%"
+  );
+}
+
 
 function normalizeConfidence(value) {
 
-  const n =
-    Number(value);
+  const n = Number(value);
 
   if (!Number.isFinite(n)) {
     return "판독 불가";
@@ -599,7 +722,6 @@ function normalizeConfidence(value) {
 }
 
 
-
 function translateTrend(value) {
 
   if (!value) {
@@ -609,7 +731,6 @@ function translateTrend(value) {
   const text =
     String(value).toLowerCase();
 
-
   if (
     text.includes("rebound") ||
     text.includes("recover")
@@ -617,22 +738,21 @@ function translateTrend(value) {
     return "최근 반등 흐름";
   }
 
-
   if (
     text.includes("uptrend") ||
-    text.includes("bullish")
+    text.includes("bullish") ||
+    text === "up"
   ) {
     return "상승 추세";
   }
 
-
   if (
     text.includes("downtrend") ||
-    text.includes("bearish")
+    text.includes("bearish") ||
+    text === "down"
   ) {
     return "하락 추세";
   }
-
 
   if (
     text.includes("sideways") ||
@@ -641,10 +761,8 @@ function translateTrend(value) {
     return "횡보";
   }
 
-
   return value;
 }
-
 
 
 analyzeBtn.addEventListener(
@@ -653,10 +771,8 @@ analyzeBtn.addEventListener(
 
     errorBox.textContent = "";
 
-
     const file =
       imageInput.files[0];
-
 
     if (!file) {
 
@@ -727,7 +843,6 @@ analyzeBtn.addEventListener(
           "분석 중 오류가 발생했습니다."
         );
       }
-
 
 
       document.getElementById(
@@ -823,7 +938,6 @@ analyzeBtn.addEventListener(
           : "판독 불가";
 
 
-
       const plan =
         data.tradePlan || {};
 
@@ -853,11 +967,61 @@ analyzeBtn.addEventListener(
 
 
       document.getElementById(
+        "targetSource"
+      ).textContent =
+        "출처: " +
+        displayValue(
+          plan.targetSource
+        );
+
+
+      document.getElementById(
         "stopLoss"
       ).textContent =
         displayPrice(
           plan.stopLoss
         );
+
+
+      document.getElementById(
+        "stopSource"
+      ).textContent =
+        "출처: " +
+        displayValue(
+          plan.stopSource
+        );
+
+
+      document.getElementById(
+        "expectedGain"
+      ).textContent =
+        displayPercent(
+          plan.expectedGainPct
+        );
+
+
+      document.getElementById(
+        "expectedLoss"
+      ).textContent =
+        plan.expectedLossPct !== null &&
+        plan.expectedLossPct !== undefined
+          ? "-" +
+            Math.abs(
+              Number(
+                plan.expectedLossPct
+              )
+            ) +
+            "%"
+          : "계산 불가";
+
+
+      document.getElementById(
+        "riskReward"
+      ).textContent =
+        plan.riskReward !== null &&
+        plan.riskReward !== undefined
+          ? plan.riskReward + " : 1"
+          : "계산 불가";
 
 
       document.getElementById(
@@ -869,12 +1033,19 @@ analyzeBtn.addEventListener(
 
 
       document.getElementById(
+        "tradeQuality"
+      ).textContent =
+        displayValue(
+          plan.tradeQuality
+        );
+
+
+      document.getElementById(
         "strategy"
       ).textContent =
         displayValue(
           plan.strategy
         );
-
 
 
       const reasons =
@@ -903,7 +1074,6 @@ analyzeBtn.addEventListener(
               reason;
 
             reasons.appendChild(li);
-
           }
         );
 
