@@ -509,7 +509,7 @@ let validEntryResistance = resistance;
 
 if (
   validEntryResistance !== null &&
-  (validEntryResistance <= price || validEntryResistance > price * 2)
+  (validEntryResistance <= price || validEntryResistance > price * 1.20)
 ) {
   validEntryResistance = null;
 }
@@ -698,7 +698,8 @@ function calculateEntryDecision(data, technical, plan) {
   else if (
    technical.score >= 0 &&
    validEntryResistance !== null &&
-   validEntryResistance > price
+   validEntryResistance > price &&
+   validEntryResistance <= price * 1.20   
   ) {
     entryDecision = "돌파 대기";
     decisionReason =
