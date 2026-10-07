@@ -1099,9 +1099,10 @@ if (decision === "진입 가능") {
   decisionSignal = "🟢 진입 가능";
 } else if (
   decision === "관망" ||
-  decision === "기다림"
+  decision === "기다림" ||
+  decision === "돌파 대기"
 ) {
-  decisionSignal = "🟡 기다림";
+  decisionSignal = "🟡 돌파 대기";
 } else if (
   decision === "진입 보류" ||
   decision === "매도 후보"
