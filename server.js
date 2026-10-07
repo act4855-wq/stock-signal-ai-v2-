@@ -696,9 +696,9 @@ function calculateEntryDecision(data, technical, plan) {
 
   // 상승 추세이나 신호가 아직 약한 경우
   else if (
-    technical.score >= 0 &&
-    resistance !== null &&
-    resistance > price
+   technical.score >= 0 &&
+   validEntryResistance !== null &&
+   validEntryResistance > price
   ) {
     entryDecision = "돌파 대기";
     decisionReason =
@@ -707,11 +707,11 @@ function calculateEntryDecision(data, technical, plan) {
 // 저항선을 판독하지 못했지만 상승 신호가 남아 있는 경우
 else if (
   technical.score >= 1 &&
-  resistance === null
+  validEntryResistance === null
 ) {
   entryDecision = "신호 대기";
   decisionReason =
-    "상승 신호가 일부 확인되지만 저항선을 판독할 수 없어 추가 확인이 필요합니다.";
+    "상승 신호가 일부 확인되지만 유효한 저항선을 확인할 수 없어 추가 확인이 필요합니다.";
 }
   // 나머지
   else {
