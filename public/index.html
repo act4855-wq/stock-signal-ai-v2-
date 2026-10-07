@@ -593,7 +593,10 @@ V6 위험관리 매매 계획
   <div class="trade-title">
     V7 진입 의사결정
   </div>
-
+<div class="strategy">
+  <strong>최종 매매 신호</strong>
+  <div id="decisionSignal">-</div>
+</div>
   <div class="plan-grid">
 
     <div class="plan-item">
@@ -1087,7 +1090,28 @@ document.getElementById(
   displayValue(
     data.entryDecision?.decisionReason
   );
-      
+const decision =
+  data.entryDecision?.entryDecision || "판단 불가";
+
+let decisionSignal = "⚪ 판단 불가";
+
+if (decision === "진입 가능") {
+  decisionSignal = "🟢 진입 가능";
+} else if (
+  decision === "관망" ||
+  decision === "기다림"
+) {
+  decisionSignal = "🟡 기다림";
+} else if (
+  decision === "진입 보류" ||
+  decision === "매도 후보"
+) {
+  decisionSignal = "🔴 진입 보류";
+}
+
+document.getElementById(
+  "decisionSignal"
+).textContent = decisionSignal;      
 document.getElementById(
   "calculationBase"
 ).textContent =
