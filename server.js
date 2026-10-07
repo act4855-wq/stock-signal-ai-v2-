@@ -846,7 +846,7 @@ confidence
           reasoning: {
             effort: "low"
           },
-
+          max_output_tokens: 1000,
           input: [
 
             {
