@@ -186,7 +186,27 @@ function calculateTradePlan(data, technical) {
   const price = num(data.price);
   const support = num(data.support);
   const resistance = num(data.resistance);
+// 비정상 지지선·저항선 방어
+let validSupport = support;
+let validResistance = resistance;
 
+// 지지선은 현재가보다 낮아야 하며,
+// 현재가의 50%보다 지나치게 낮으면 계산에서 제외
+if (
+  validSupport !== null &&
+  (validSupport >= price || validSupport < price * 0.5)
+) {
+  validSupport = null;
+}
+
+// 저항선은 현재가보다 높아야 하며,
+// 현재가의 100% 이상 지나치게 높으면 계산에서 제외
+if (
+  validResistance !== null &&
+  (validResistance <= price || validResistance > price * 2)
+) {
+  validResistance = null;
+}
   if (price === null) {
 
     return {
@@ -261,13 +281,13 @@ function calculateTradePlan(data, technical) {
   let targetSource = "";
 
 
-  if (
-    resistance !== null &&
-    resistance > entryCandidate
-  ) {
+ if (
+  validResistance !== null &&
+  validResistance > entryCandidate
+) {
 
-    target1 =
-      roundPrice(resistance);
+  target1 =
+    roundPrice(validResistance);
 
     targetSource =
       "차트 저항선";
@@ -296,14 +316,14 @@ function calculateTradePlan(data, technical) {
   let stopSource = "";
 
 
-  if (
-    support !== null &&
-    support < entryCandidate
-  ) {
+ if (
+  validSupport !== null &&
+  validSupport < entryCandidate
+) {
 
-    const supportDistanceFromEntry =
-      (entryCandidate - support) /
-      entryCandidate;
+  const supportDistanceFromEntry =
+    (entryCandidate - validSupport) /
+    entryCandidate;
 
 
     /*
@@ -315,7 +335,7 @@ function calculateTradePlan(data, technical) {
     if (supportDistanceFromEntry <= 0.10) {
 
       stopLoss =
-        roundPrice(support * 0.98);
+        roundPrice(validSupport * 0.98);
 
       stopSource =
         "차트 지지선 기준";
@@ -485,20 +505,27 @@ function calculateTradePlan(data, technical) {
   // ------------------------------------------
 
   let entryStatus = "관망";
+let validEntryResistance = resistance;
 
+if (
+  validEntryResistance !== null &&
+  (validEntryResistance <= price || validEntryResistance > price * 2)
+) {
+  validEntryResistance = null;
+}
 
   /*
     현재가가 차트 저항선에 3% 이내로
     접근한 경우에는 추격매수 경고를 우선한다.
   */
 
-  if (
-    resistance !== null &&
-    resistance > price
-  ) {
+ if (
+  validEntryResistance !== null &&
+  validEntryResistance > price
+) {
 
-    const resistanceDistance =
-      (resistance - price) / price;
+   const resistanceDistance =
+  (validEntryResistance - price) / price;
 
 
     if (resistanceDistance <= 0.03) {
