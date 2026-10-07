@@ -697,9 +697,9 @@ function calculateEntryDecision(data, technical, plan) {
   // 상승 추세이나 신호가 아직 약한 경우
   else if (
    technical.score >= 0 &&
-   validEntryResistance !== null &&
-   validEntryResistance > price &&
-   validEntryResistance <= price * 1.20   
+   resistance !== null &&
+   resistance > price &&
+   resistance <= price * 1.20  
   ) {
     entryDecision = "돌파 대기";
     decisionReason =
