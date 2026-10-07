@@ -677,7 +677,15 @@ function calculateEntryDecision(data, technical, plan) {
     decisionReason =
       "상승 흐름은 유지되고 있으나 기술적 신호가 충분히 강하지 않아 저항선 돌파 여부를 확인합니다.";
   }
-
+// 저항선을 판독하지 못했지만 상승 신호가 남아 있는 경우
+else if (
+  technical.score >= 1 &&
+  resistance === null
+) {
+  entryDecision = "신호 대기";
+  decisionReason =
+    "상승 신호가 일부 확인되지만 저항선을 판독할 수 없어 추가 확인이 필요합니다.";
+}
   // 나머지
   else {
     entryDecision = "관망";
