@@ -807,7 +807,7 @@ else if (
   else {
     entryDecision = "관망";
     decisionReason =
-      "현재 기술적 조건에서는 신규 진입을 서두를 필요가 없습니다.";
+      `기술적 점수는 ${technical.score}점으로 신규 진입 근거가 충분하지 않습니다. 현재는 관망하면서 추가 상승 신호나 거래량 회복을 확인하는 것이 좋습니다.`;
   }
 
   return {
