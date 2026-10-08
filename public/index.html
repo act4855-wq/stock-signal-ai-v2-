@@ -951,6 +951,11 @@ formData.append(
         ) +
         "점";
 
+      const trendFilterText =
+       data.trendFilterReady
+         ? "EMA 추세 필터: 확인"
+         : "EMA 추세 필터: 미확인";
+
       document.getElementById(
         "volume"
        ).textContent =
