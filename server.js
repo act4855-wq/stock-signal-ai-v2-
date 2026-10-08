@@ -966,6 +966,19 @@ confidence
       const extracted =
         JSON.parse(text);
 
+      const rawTrend = String(extracted.trend || "").trim();
+
+if (rawTrend.includes("강한 상승")) {
+  extracted.trend = "강한 상승";
+} else if (rawTrend.includes("상승")) {
+  extracted.trend = "상승";
+} else if (rawTrend.includes("강한 하락")) {
+  extracted.trend = "강한 하락";
+} else if (rawTrend.includes("하락")) {
+  extracted.trend = "하락";
+} else {
+  extracted.trend = "횡보";
+}
 
       const technical =
         calculateSignal(extracted);
