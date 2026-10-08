@@ -221,7 +221,7 @@ let validResistance = resistance;
 // 현재가의 50%보다 지나치게 낮으면 계산에서 제외
 if (
   validSupport !== null &&
-  (validSupport >= price || validSupport < price * 0.5)
+  (validSupport >= price || validSupport < price * 0.8)
 ) {
   validSupport = null;
 }
@@ -230,7 +230,7 @@ if (
 // 현재가의 100% 이상 지나치게 높으면 계산에서 제외
 if (
   validResistance !== null &&
-  (validResistance <= price || validResistance > price * 2)
+  (validResistance <= price || validResistance > price * 1.2)
 ) {
   validResistance = null;
 }
