@@ -954,7 +954,9 @@ formData.append(
       document.getElementById(
         "volume"
        ).textContent =
-      displayValue(data.volume);
+      data.volume !== null && data.volume !== undefined
+       ? (data.volume / 1000000).toFixed(2) + "M"
+       : "판독 불가";
 
       document.getElementById(
         "atr"
