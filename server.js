@@ -1125,6 +1125,9 @@ const entryDecision =
         reasons:
           technical.reasons,
 
+trendFilterReady: 
+  technical.trendFilterReady,
+        
      tradePlan,
 entryDecision
       };
