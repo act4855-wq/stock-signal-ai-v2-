@@ -53,9 +53,21 @@ function calculateSignal(data) {
   const d = num(data.stochD);
   const macd = num(data.macd);
   const macdSignal = num(data.macdSignal);
-
+  const trend = String(data.trend || "").trim();
+  
   let score = 0;
   const reasons = [];
+
+// Trend
+if (trend === "강한 상승") {
+  score += 1;
+  reasons.push("추세: 강한 상승");
+
+} else if (trend === "강한 하락") {
+  score -= 1;
+  reasons.push("추세: 강한 하락");
+}
+  
 // Volume
 if (
   volume !== null &&
