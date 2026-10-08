@@ -46,7 +46,8 @@ function roundPercent(value) {
 // ==========================================
 
 function calculateSignal(data) {
-
+  const volume = num(data.volume);
+  const volumeAvg = num(data.volumeAvg);
   const rsi = num(data.rsi);
   const k = num(data.stochK);
   const d = num(data.stochD);
@@ -55,7 +56,32 @@ function calculateSignal(data) {
 
   let score = 0;
   const reasons = [];
+// Volume
+if (
+  volume !== null &&
+  volumeAvg !== null &&
+  volumeAvg > 0
+) {
+  const volumeRatio = volume / volumeAvg;
 
+  if (volumeRatio >= 1.5) {
+    reasons.push(
+      `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 매우 강함`
+    );
+  } else if (volumeRatio >= 1.2) {
+    reasons.push(
+      `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 증가`
+    );
+  } else if (volumeRatio < 0.8) {
+    reasons.push(
+      `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 감소`
+    );
+  } else {
+    reasons.push(
+      `거래량 ${volumeRatio.toFixed(2)}배: 평균 수준`
+    );
+  }
+}
 
   // RSI
   if (rsi !== null) {
@@ -184,6 +210,7 @@ function calculateSignal(data) {
 function calculateTradePlan(data, technical) {
 
   const price = num(data.price);
+  const atr = num(data.atr);
   const support = num(data.support);
   const resistance = num(data.resistance);
 // 비정상 지지선·저항선 방어
@@ -315,7 +342,11 @@ if (
   let stopLoss = null;
   let stopSource = "";
 
-
+  const atrStopDistance =
+  atr !== null && atr > 0
+    ? Math.min(atr * 1.5, entryCandidate * 0.08)
+    : null;
+  
  if (
   validSupport !== null &&
   validSupport < entryCandidate
@@ -342,20 +373,34 @@ if (
 
     } else {
 
-      stopLoss =
+    if (atrStopDistance !== null) {
+    stopLoss =
+        roundPrice(entryCandidate - atrStopDistance);
+
+    stopSource =
+        "ATR 기준 (1.5 ATR)";
+} else {
+    stopLoss =
         roundPrice(entryCandidate * 0.98);
 
-      stopSource =
+    stopSource =
         "위험관리 계산값 (진입가 -2%)";
-    }
+}
 
   } else {
 
+  if (atrStopDistance !== null) {
     stopLoss =
-      roundPrice(entryCandidate * 0.98);
+        roundPrice(entryCandidate - atrStopDistance);
 
     stopSource =
-      "위험관리 계산값 (진입가 -2%)";
+        "ATR 기준 (1.5 ATR)";
+} else {
+    stopLoss =
+        roundPrice(entryCandidate * 0.98);
+
+    stopSource =
+        "위험관리 계산값 (진입가 -2%)";
   }
 
 
@@ -789,6 +834,14 @@ ${timeframe}
 
 - 미국 주식 가격이 달러로 표시되어 있으면 숫자만 반환한다.
 
+- volume은 차트에 표시된 가장 최근 거래량 값을 숫자로 반환한다.
+- 거래량 값이 명확하게 보이지 않으면 volume은 null이다.
+- volumeAvg는 차트에 평균 거래량 값이 명확하게 표시된 경우에만 숫자로 반환한다.
+- 평균 거래량 값이 표시되지 않거나 명확하지 않으면 volumeAvg는 null이다.
+
+- atr은 차트에 표시된 ATR(14)의 가장 최근 현재값만 숫자로 반환한다.
+- ATR 값이 명확하게 보이지 않으면 atr은 null이다.
+
 - support는 차트에 명확히 표시된 저점 또는 지지 가격을
   실제로 읽을 수 있는 경우에만 숫자로 반환한다.
 
@@ -804,7 +857,10 @@ ${timeframe}
 
 ticker
 price
+volume
+volumeAvg
 rsi
+atr
 stochK
 stochD
 macd
@@ -821,7 +877,10 @@ confidence
 {
   "ticker": "",
   "price": null,
+  "volume": null,
+  "volumeAvg": null,
   "rsi": null,
+  "atr": null,
   "stochK": null,
   "stochD": null,
   "macd": null,
