@@ -386,7 +386,7 @@ if (
     stopSource =
         "위험관리 계산값 (진입가 -2%)";
 }
-
+    }
   } else {
 
   if (atrStopDistance !== null) {
