@@ -1031,11 +1031,13 @@ formData.append(
       document.getElementById(
         "invalidation"
       ).textContent =
-        data.invalidation
-          ? displayValue(
-              data.invalidation
-            )
-          : "판독 불가";
+       data.invalidation
+  ? displayValue(
+      data.invalidation
+    )
+  : data.tradePlan?.stopLoss != null
+    ? `계산 기준: ${displayPrice(data.tradePlan.stopLoss)} 이탈 시 매매 시나리오 재검토`
+    : "판독 불가";
 
 
       const plan =
