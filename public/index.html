@@ -708,7 +708,42 @@ function displayValue(value) {
   return value;
 }
 
+async function resizeImage(file) {
+  const img = await createImageBitmap(file);
 
+  const maxWidth = 1200;
+  const maxHeight = 1600;
+
+  const scale = Math.min(
+    1,
+    maxWidth / img.width,
+    maxHeight / img.height
+  );
+
+  if (scale === 1) {
+    return file;
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(img.width * scale);
+  canvas.height = Math.round(img.height * scale);
+
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(
+    img,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      resolve,
+      "image/png"
+    );
+  });
+}
 function displayPrice(value) {
 
   if (
@@ -838,12 +873,12 @@ analyzeBtn.addEventListener(
       const formData =
         new FormData();
 
-
-      formData.append(
-        "image",
-        file
-      );
-
+const resizedFile = await resizeImage(file);
+      
+formData.append(
+  "image",
+  resizedFile
+);
 
       formData.append(
         "ticker",
