@@ -925,7 +925,7 @@ confidence
                 {
                   type: "input_image",
                   image_url: imageData,
-                  detail: "high"
+                  detail: "auto"
                 }
 
               ]
