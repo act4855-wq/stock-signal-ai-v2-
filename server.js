@@ -48,24 +48,55 @@ function roundPercent(value) {
 function calculateSignal(data) {
   const volume = num(data.volume);
   const volumeAvg = num(data.volumeAvg);
+  const price = num(data.price);
   const rsi = num(data.rsi);
+  const ema20 = num(data.ema20);
+  const ema50 = num(data.ema50);
+  const ema200 = num(data.ema200);
   const k = num(data.stochK);
   const d = num(data.stochD);
   const macd = num(data.macd);
   const macdSignal = num(data.macdSignal);
+  const macdHistogram =
+   macd !== null && macdSignal !== null
+     ? macd - macdSignal
+     : null;
   const trend = String(data.trend || "").trim();
   
   let score = 0;
   const reasons = [];
+// EMA Trend Filter
+if (
+  price !== null &&
+  ema20 !== null &&
+  ema50 !== null
+) {
+  if (price > ema20 && ema20 > ema50) {
+    score += 2;
+    reasons.push("EMA20 > EMA50, 가격이 EMA20 위: 상승 추세");
 
-// Trend
-if (trend === "강한 상승") {
-  score += 1;
-  reasons.push("추세: 강한 상승");
+  } else if (price < ema20 && ema20 < ema50) {
+    score -= 2;
+    reasons.push("EMA20 < EMA50, 가격이 EMA20 아래: 하락 추세");
 
-} else if (trend === "강한 하락") {
-  score -= 1;
-  reasons.push("추세: 강한 하락");
+  } else {
+    reasons.push("EMA20/50 정렬 혼조: 추세 불명확");
+  }
+}
+
+// 장기 추세 확인
+if (
+  price !== null &&
+  ema200 !== null
+) {
+  if (price > ema200) {
+    score += 1;
+    reasons.push("가격이 EMA200 위: 장기 상승 우위");
+
+  } else if (price < ema200) {
+    score -= 1;
+    reasons.push("가격이 EMA200 아래: 장기 하락 우위");
+  }
 }
   
 // Volume
@@ -104,120 +135,170 @@ if (
 }
 }
 
-  // RSI
-  if (rsi !== null) {
+// RSI
+if (rsi !== null) {
 
-    if (rsi <= 30) {
-      score += 2;
-      reasons.push(`RSI ${rsi}: 과매도권`);
+  if (rsi >= 70) {
+    score += 1;
+    reasons.push(`RSI ${rsi}: 강한 상승 모멘텀, 과열 주의`);
 
-    } else if (rsi < 45) {
-      score += 1;
-      reasons.push(`RSI ${rsi}: 낮은 구간`);
+  } else if (rsi >= 55) {
+    score += 1;
+    reasons.push(`RSI ${rsi}: 상승 모멘텀`);
 
-    } else if (rsi >= 70) {
-      score -= 2;
-      reasons.push(`RSI ${rsi}: 과매수권`);
+  } else if (rsi >= 45) {
+    reasons.push(`RSI ${rsi}: 중립권`);
 
-    } else if (rsi > 60) {
-      score -= 1;
-      reasons.push(`RSI ${rsi}: 높은 구간`);
+  } else if (rsi > 30) {
+    score -= 1;
+    reasons.push(`RSI ${rsi}: 하락 모멘텀`);
 
-    } else {
-      reasons.push(`RSI ${rsi}: 중립권`);
+  } else {
+    score -= 1;
+    reasons.push(`RSI ${rsi}: 강한 하락 모멘텀, 과매도 주의`);
+  }
+}
+
+
+  // Stochastic - 진입 타이밍 보조
+if (k !== null && d !== null) {
+
+  if (k < 20 && d < 20 && k > d) {
+    score += 1;
+    reasons.push(
+      `스토캐스틱 K ${k} / D ${d}: 과매도권 골든크로스`
+    );
+
+  } else if (k > 80 && d > 80 && k < d) {
+    score -= 1;
+    reasons.push(
+      `스토캐스틱 K ${k} / D ${d}: 과매수권 데드크로스`
+    );
+
+  } else if (k > 80) {
+    reasons.push(
+      `스토캐스틱 K ${k}: 과매수 구간, 추격 진입 주의`
+    );
+
+  } else if (k < 20) {
+    reasons.push(
+      `스토캐스틱 K ${k}: 과매도 구간, 반등 확인 필요`
+    );
+
+  } else if (k > d) {
+    reasons.push(
+      `스토캐스틱 K ${k} > D ${d}: 단기 상승 타이밍`
+    );
+
+  } else if (k < d) {
+    reasons.push(
+      `스토캐스틱 K ${k} < D ${d}: 단기 약세 타이밍`
+    );
+  }
+}
+
+
+  // MACD - 추세 확인 보조
+if (macd !== null && macdSignal !== null) {
+
+  if (macd > macdSignal) {
+    score += 1;
+
+    reasons.push(
+      `MACD ${macd} > Signal ${macdSignal}: 상승 확인`
+    );
+
+  } else if (macd < macdSignal) {
+    score -= 1;
+
+    reasons.push(
+      `MACD ${macd} < Signal ${macdSignal}: 하락 확인`
+    );
+  }
+
+  if (macdHistogram !== null) {
+    if (macdHistogram > 0) {
+      reasons.push(
+        `MACD 히스토그램 ${macdHistogram.toFixed(4)}: 양수`
+      );
+    } else if (macdHistogram < 0) {
+      reasons.push(
+        `MACD 히스토그램 ${macdHistogram.toFixed(4)}: 음수`
+      );
     }
   }
+}
 
 
-  // Stochastic
-  if (k !== null && d !== null) {
+ const bullishTrend =
+  price !== null &&
+  ema20 !== null &&
+  ema50 !== null &&
+  price > ema20 &&
+  ema20 > ema50;
 
-    if (k < 20 && d < 20 && k > d) {
+const bearishTrend =
+  price !== null &&
+  ema20 !== null &&
+  ema50 !== null &&
+  price < ema20 &&
+  ema20 < ema50;
 
-      score += 2;
-      reasons.push(
-        `스토캐스틱 K ${k} / D ${d}: 과매도권 상승`
-      );
+const strongBullishTrend =
+  bullishTrend &&
+  ema200 !== null &&
+  price > ema200;
 
-    } else if (k > 80 && d > 80 && k < d) {
-
-      score -= 2;
-      reasons.push(
-        `스토캐스틱 K ${k} / D ${d}: 과매수권 하락`
-      );
-
-    } else if (k > 80) {
-
-      score -= 1;
-      reasons.push(
-        `스토캐스틱 K ${k}: 과매수 구간`
-      );
-
-    } else if (k < 20) {
-
-      score += 1;
-      reasons.push(
-        `스토캐스틱 K ${k}: 과매도 구간`
-      );
-
-    } else if (k > d) {
-
-      score += 1;
-      reasons.push(
-        `스토캐스틱 K ${k} > D ${d}`
-      );
-
-    } else if (k < d) {
-
-      score -= 1;
-      reasons.push(
-        `스토캐스틱 K ${k} < D ${d}`
-      );
-    }
-  }
+const strongBearishTrend =
+  bearishTrend &&
+  ema200 !== null &&
+  price < ema200;
 
 
-  // MACD
-  if (macd !== null && macdSignal !== null) {
+let signal = "관망";
 
-    if (macd > macdSignal) {
+if (
+  strongBullishTrend &&
+  score >= 5
+) {
+  signal = "매수 후보";
 
-      score += 2;
-      reasons.push(
-        `MACD ${macd} > Signal ${macdSignal}`
-      );
+} else if (
+  bullishTrend &&
+  score >= 3
+) {
+  signal = "약한 매수 후보";
 
-    } else if (macd < macdSignal) {
+} else if (
+  strongBearishTrend &&
+  score <= -5
+) {
+  signal = "매도 후보";
 
-      score -= 2;
-      reasons.push(
-        `MACD ${macd} < Signal ${macdSignal}`
-      );
-    }
-  }
+} else if (
+  bearishTrend &&
+  score <= -3
+) {
+  signal = "약한 매도 후보";
+}
+if (
+  price !== null &&
+  (ema20 === null || ema50 === null)
+) {
+  reasons.push(
+    "EMA20/50을 확인할 수 없어 추세 필터를 통과하지 못함"
+  );
+}
 
-
-  let signal = "관망";
-
-  if (score >= 4) {
-    signal = "매수 후보";
-
-  } else if (score >= 2) {
-    signal = "약한 매수 후보";
-
-  } else if (score <= -4) {
-    signal = "매도 후보";
-
-  } else if (score <= -2) {
-    signal = "약한 매도 후보";
-  }
-
-
-  return {
-    score,
-    signal,
-    reasons
-  };
+return {
+  score,
+  signal,
+  reasons,
+  trendFilterReady:
+    price !== null &&
+    ema20 !== null &&
+    ema50 !== null
+};
 }
 
 
@@ -885,7 +966,11 @@ ${timeframe}
 
 - atr은 차트에 표시된 ATR(14)의 가장 최근 현재값만 숫자로 반환한다.
 - ATR 값이 명확하게 보이지 않으면 atr은 null이다.
-
+- ema20은 차트에 표시된 EMA(20)의 가장 최근 현재값만 숫자로 반환한다.
+- ema50은 차트에 표시된 EMA(50)의 가장 최근 현재값만 숫자로 반환한다.
+- ema200은 차트에 표시된 EMA(200)의 가장 최근 현재값만 숫자로 반환한다.
+- EMA 값이 화면에서 명확하게 보이지 않으면 해당 값은 null로 반환한다.
+- EMA 선의 색상만 보고 값을 추정하지 않는다.
 - support는 차트에 명확히 표시된 저점 또는 지지 가격을
   실제로 읽을 수 있는 경우에만 숫자로 반환한다.
 
@@ -905,6 +990,9 @@ volume
 volumeAvg
 rsi
 atr
+ema20
+ema50
+ema200
 stochK
 stochD
 macd
@@ -925,6 +1013,9 @@ confidence
   "volumeAvg": null,
   "rsi": null,
   "atr": null,
+  "ema20": null,
+  "ema50": null,
+  "ema200": null,
   "stochK": null,
   "stochD": null,
   "macd": null,
