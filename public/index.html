@@ -391,6 +391,8 @@ AI 자동 분석
 
 <div id="score" class="score">-</div>
 
+<div id="trendFilterStatus" class="confidence"></div>  
+
 </div>
 
 
@@ -955,6 +957,11 @@ formData.append(
        data.trendFilterReady
          ? "EMA 추세 필터: 확인"
          : "EMA 추세 필터: 미확인";
+
+      document.getElementById(
+        "trendFilterStatus"
+       ).textContent =
+        trendFilterText;
 
       document.getElementById(
         "volume"
