@@ -1009,13 +1009,23 @@ formData.append(
       document.getElementById(
         "support"
       ).textContent =
-        displayPrice(data.support);
+       data.support !== null &&
+       data.price !== null &&
+       data.support < data.price &&
+       data.support >= data.price * 0.8
+       ? displayPrice(data.support)
+       : "판독 불가";
 
 
       document.getElementById(
         "resistance"
       ).textContent =
-        displayPrice(data.resistance);
+       data.resistance !== null &&
+       data.price !== null &&
+       data.resistance > data.price &&
+       data.resistance <= data.price * 1.2
+      ? displayPrice(data.resistance)
+      : "판독 불가";
 
 
       document.getElementById(
