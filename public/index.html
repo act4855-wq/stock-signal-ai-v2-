@@ -397,10 +397,20 @@ AI 자동 분석
 <div class="indicators">
 
 <div class="indicator">
+  <div class="name">거래량</div>
+  <div id="volume" class="value">-</div>
+</div>
+  
+<div class="indicator">
 <div class="name">RSI</div>
 <div id="rsi" class="value">-</div>
 </div>
 
+<div class="indicator">
+  <div class="name">ATR</div>
+  <div id="atr" class="value">-</div>
+</div>
+  
 <div class="indicator">
 <div class="name">STOCH K/D</div>
 <div id="stoch" class="value">-</div>
@@ -906,7 +916,15 @@ analyzeBtn.addEventListener(
         ) +
         "점";
 
+      document.getElementById(
+        "volume"
+       ).textContent =
+      displayValue(data.volume);
 
+      document.getElementById(
+        "atr"
+       ).textContent =
+      displayValue(data.atr);
       document.getElementById(
         "rsi"
       ).textContent =
