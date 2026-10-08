@@ -753,7 +753,11 @@ function calculateEntryDecision(data, technical, plan) {
 // 저항선을 판독하지 못했지만 상승 신호가 남아 있는 경우
 else if (
   technical.score >= 1 &&
-  validEntryResistance === null
+  (
+    resistance === null ||
+    resistance <= price ||
+    resistance > price * 1.20
+  )
 ) {
   entryDecision = "신호 대기";
   decisionReason =
