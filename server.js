@@ -378,7 +378,7 @@ if (
         roundPrice(entryCandidate - atrStopDistance);
 
     stopSource =
-        "ATR 기준 (1.5 ATR)";
+        "ATR 기준 (1.5 ATR, 최대 8% 제한)";
 } else {
     stopLoss =
         roundPrice(entryCandidate * 0.98);
