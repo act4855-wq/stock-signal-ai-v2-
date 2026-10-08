@@ -327,11 +327,30 @@ if (
       계산 목표가로 사용한다.
     */
 
-    target1 =
-      roundPrice(price * 1.05);
+   if (atr !== null && atr > 0) {
 
-    targetSource =
-      "계산값 (현재가 +5%)";
+  const atrTargetDistance =
+    Math.min(
+      atr * 2,
+      entryCandidate * 0.12
+    );
+
+  target1 =
+    roundPrice(
+      entryCandidate + atrTargetDistance
+    );
+
+  targetSource =
+    "ATR 기준 (2 ATR, 최대 12% 제한)";
+
+} else {
+
+  target1 =
+    roundPrice(price * 1.05);
+
+  targetSource =
+    "계산값 (현재가 +5%)";
+}
   }
 
 
