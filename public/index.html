@@ -954,8 +954,12 @@ formData.append(
       document.getElementById(
         "volume"
        ).textContent =
-      data.volume !== null && data.volume !== undefined
-       ? (data.volume / 1000000).toFixed(2) + "M"
+        data.volume !== null && data.volume !== undefined
+          ? (
+           data.volume >= 1000000
+             ? (data.volume / 1000000).toFixed(2)
+             : Number(data.volume).toFixed(2)
+        ) + "M"
        : "판독 불가";
 
       document.getElementById(
