@@ -149,31 +149,20 @@ if (
 ) {
   const volumeRatio = volume / volumeAvg;
 
-  if (volumeRatio >= 1.5) {
-    score += 1;
-    reasons.push(
-      `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 매우 강함`
-    );
-  } else if (volumeRatio >= 1.2) {
-    reasons.push(
-      `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 증가`
-    );
-} else if (volumeRatio < 0.6) {
-
+if (volumeRatio >= 1.5) {
+  score += 1;
   reasons.push(
-  volumeRatio < 0.01
-    ? "거래량 <0.01배: 평균 대비 매우 낮음"
-    : `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 크게 감소`
-);
-
-} else if (volumeRatio < 0.8) {
-  reasons.push(
-    `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 감소`
+    `거래량 ${volumeRatio.toFixed(2)}배: 강한 거래량 확인`
   );
-
+} else if (volumeRatio >= 1.2) {
+  reasons.push(
+    `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 증가`
+  );
 } else {
   reasons.push(
-    `거래량 ${volumeRatio.toFixed(2)}배: 평균 수준`
+    volumeRatio < 0.01
+      ? "거래량 확인 부족: 현재 거래량이 평균 대비 매우 낮음"
+      : `거래량 ${volumeRatio.toFixed(2)}배: 거래량 확인 부족`
   );
 }
 }
