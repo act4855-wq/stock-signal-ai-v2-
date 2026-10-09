@@ -1213,6 +1213,197 @@ confidence
             effort: "low"
           },
           max_output_tokens: 1000,
+          text: {
+  format: {
+    type: "json_schema",
+    name: "stock_chart_extraction",
+    strict: true,
+    schema: {
+      type: "object",
+      properties: {
+        ticker: { type: "string" },
+
+        price: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        volume: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        volumeAvg: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        rsi: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        atr: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        ema20: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        ema50: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        ema200: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        ema20Position: {
+          anyOf: [
+            {
+              type: "string",
+              enum: ["price_above", "price_below"]
+            },
+            { type: "null" }
+          ]
+        },
+
+        ema50Position: {
+          anyOf: [
+            {
+              type: "string",
+              enum: ["price_above", "price_below"]
+            },
+            { type: "null" }
+          ]
+        },
+
+        ema200Position: {
+          anyOf: [
+            {
+              type: "string",
+              enum: ["price_above", "price_below"]
+            },
+            { type: "null" }
+          ]
+        },
+
+        emaAlignment: {
+          anyOf: [
+            {
+              type: "string",
+              enum: ["bullish", "bearish", "mixed"]
+            },
+            { type: "null" }
+          ]
+        },
+
+        stochK: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        stochD: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        macd: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        macdSignal: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        trend: { type: "string" },
+
+        support: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        resistance: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        invalidation: {
+          anyOf: [
+            { type: "number" },
+            { type: "null" }
+          ]
+        },
+
+        confidence: {
+          type: "number"
+        }
+      },
+
+      required: [
+        "ticker",
+        "price",
+        "volume",
+        "volumeAvg",
+        "rsi",
+        "atr",
+        "ema20",
+        "ema50",
+        "ema200",
+        "ema20Position",
+        "ema50Position",
+        "ema200Position",
+        "emaAlignment",
+        "stochK",
+        "stochD",
+        "macd",
+        "macdSignal",
+        "trend",
+        "support",
+        "resistance",
+        "invalidation",
+        "confidence"
+      ],
+
+      additionalProperties: false
+    }
+  }
+},
           input: [
 
             {
@@ -1247,8 +1438,21 @@ confidence
           .trim();
 
 
-      const extracted =
-        JSON.parse(text);
+let extracted;
+
+try {
+  extracted = JSON.parse(text);
+} catch (parseError) {
+  console.error(
+    "AI JSON parse error:",
+    parseError.message,
+    text
+  );
+
+  return res.status(502).json({
+    error: "AI가 차트 데이터를 올바른 형식으로 반환하지 못했습니다. 다시 분석해주세요."
+  });
+}
 
       const rawTrend = String(extracted.trend || "").trim();
 
