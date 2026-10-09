@@ -1120,7 +1120,7 @@ ${timeframe}
 - confidence는 투자 성공 확률이 아니라 이미지 판독 신뢰도다.
 - ticker는 차트 화면에 명확히 표시된 실제 주식 티커만 반환한다.
 - 회사명이나 화면의 다른 영문을 ticker로 추정하지 않는다.
-- ticker가 명확히 보이지 않으면 ticker는 빈 문자열로 반환한다.
+- ticker가 명확히 보이지 않으면 ticker는 null로 반환한다.
 - 보이는 문자를 임의로 재조합하거나 유사 ticker로 보정하지 않는다.
 - 미국 주식 가격이 달러로 표시되어 있으면 숫자만 반환한다.
 
@@ -1239,7 +1239,17 @@ confidence
     schema: {
       type: "object",
       properties: {
-        ticker: { type: "string" },
+       ticker: {
+  anyOf: [
+    {
+      type: "string",
+      pattern: "^[A-Z]{1,5}$"
+    },
+    {
+      type: "null"
+    }
+  ]
+},
 
         price: {
           anyOf: [
