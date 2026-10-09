@@ -162,8 +162,10 @@ if (
   score -= 1;
 
   reasons.push(
-    `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 크게 감소`
-  );
+  volumeRatio < 0.01
+    ? "거래량 <0.01배: 평균 대비 매우 낮음"
+    : `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 크게 감소`
+);
 
 } else if (volumeRatio < 0.8) {
   reasons.push(
