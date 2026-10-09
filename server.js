@@ -751,6 +751,12 @@ if (
   // ------------------------------------------
 
   let entryStatus = "관망";
+  if (
+  technical.signal === "매도 후보" ||
+  technical.signal === "약한 매도 후보"
+) {
+  entryStatus = "신규매수 보류";
+}
 let validEntryResistance = resistance;
 
 if (
@@ -819,13 +825,22 @@ if (
   // 10. 전략 문장
   // ------------------------------------------
 
-  let strategy = "";
+  
 
+let strategy = "";
+ if (
+  technical.signal === "매도 후보" ||
+  technical.signal === "약한 매도 후보"
+) {
 
-  if (
-    riskReward !== null &&
-    riskReward < 1
-  ) {
+  strategy =
+    "하락 추세가 우세하므로 신규매수는 보류합니다. " +
+    "EMA20/50 회복과 MACD 개선 등 추세 전환 신호를 확인한 뒤 재검토합니다.";
+
+} else if (
+  riskReward !== null &&
+  riskReward < 1
+) {
 
     strategy =
       `진입 후보가 ${entryCandidate} 기준 예상 손익비가 ` +
