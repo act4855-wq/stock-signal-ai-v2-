@@ -905,8 +905,9 @@ function calculateEntryDecision(data, technical, plan) {
   const resistance = num(data.resistance);
   const entry = num(plan?.entryCandidate);
 const emaAlignment = String(data.emaAlignment || "").trim();
-const ema200Position = String(data.ema200Position || "").trim();
-
+const ema20Position = String(data.ema20Position || "").trim();
+const ema50Position = String(data.ema50Position || "").trim();
+const ema200Position = String(data.ema200Position || "").trim();  
 const volume = num(data.volume);
 const volumeAvg = num(data.volumeAvg);
 const volumeRatio =
@@ -986,12 +987,27 @@ else if (
 
   const reasonParts = [];
 
-  if (emaAlignment === "mixed") {
-    reasonParts.push("EMA 정렬이 혼조입니다.");
-  } else if (emaAlignment === "bearish") {
-    reasonParts.push("EMA가 하락 정렬 상태입니다.");
-  }
-
+  if (
+  emaAlignment === "bearish" &&
+  ema20Position === "price_below" &&
+  ema50Position === "price_below"
+) {
+  reasonParts.push("EMA20/50이 하락 정렬이고 가격도 두 EMA 아래에 있습니다.");
+} else if (
+  emaAlignment === "bullish" &&
+  ema20Position === "price_above" &&
+  ema50Position === "price_above"
+) {
+  reasonParts.push("EMA20/50이 상승 정렬이고 가격도 두 EMA 위에 있습니다.");
+} else if (
+  emaAlignment === "mixed" ||
+  ema20Position === "price_above" ||
+  ema20Position === "price_below" ||
+  ema50Position === "price_above" ||
+  ema50Position === "price_below"
+) {
+  reasonParts.push("EMA20/50 정렬이 혼조여서 단기 추세가 불명확합니다.");
+}
   if (ema200Position === "price_below") {
     reasonParts.push("가격이 EMA200 아래에 있어 장기 추세가 약합니다.");
   }
