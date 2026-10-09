@@ -963,16 +963,24 @@ formData.append(
        ).textContent =
         trendFilterText;
 
-      document.getElementById(
-        "volume"
-       ).textContent =
-        data.volume !== null && data.volume !== undefined
-          ? (
-           data.volume >= 1000000
-             ? (data.volume / 1000000).toFixed(2)
-             : Number(data.volume).toFixed(2)
-        ) + "M"
-       : "판독 불가";
+     const volumeValue = Number(data.volume);
+
+document.getElementById(
+  "volume"
+).textContent =
+  data.volume !== null &&
+  data.volume !== undefined &&
+  !Number.isNaN(volumeValue)
+    ? (
+        volumeValue >= 1000000000
+          ? (volumeValue / 1000000000).toFixed(2) + "B"
+          : volumeValue >= 1000000
+          ? (volumeValue / 1000000).toFixed(2) + "M"
+          : volumeValue >= 1000
+          ? (volumeValue / 1000).toFixed(2) + "K"
+          : volumeValue.toFixed(0)
+      )
+    : "판독 불가";
 
       document.getElementById(
         "atr"
