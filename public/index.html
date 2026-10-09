@@ -1204,6 +1204,10 @@ let decisionSignal = "⚪ 판단 불가";
 
 if (decision === "진입 가능") {
   decisionSignal = "🟢 진입 가능";
+
+} else if (decision === "눌림목 대기") {
+  decisionSignal = "🟡 매수 관찰";
+
 } else if (
   decision === "관망" ||
   decision === "기다림" ||
