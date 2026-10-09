@@ -1184,20 +1184,24 @@ const isSellSignal =
       );
 
 
-      document.getElementById(
-        "riskLevel"
-      ).textContent =
-        displayValue(
-          plan.riskLevel
-        );
+     document.getElementById(
+  "riskLevel"
+).textContent =
+  isSellSignal
+    ? "-"
+    : displayValue(
+        plan.riskLevel
+      );
 
 
-      document.getElementById(
-        "tradeQuality"
-      ).textContent =
-        displayValue(
-          plan.tradeQuality
-        );
+     document.getElementById(
+  "tradeQuality"
+).textContent =
+  isSellSignal
+    ? "신규매수 비활성"
+    : displayValue(
+        plan.tradeQuality
+      );
 document.getElementById(
   "entryDecision"
 ).textContent =
@@ -1259,9 +1263,11 @@ document.getElementById(
 document.getElementById(
   "calculationBase"
 ).textContent =
-  displayValue(
-    plan.calculationBase
-  );
+  isSellSignal
+    ? "-"
+    : displayValue(
+        plan.calculationBase
+      );
 
       document.getElementById(
         "strategy"
