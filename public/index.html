@@ -1200,9 +1200,18 @@ document.getElementById(
 const decision =
   data.entryDecision?.entryDecision || "판단 불가";
 
+const technicalSignal =
+  String(data.signal || "").trim();
+
 let decisionSignal = "⚪ 판단 불가";
 
-if (decision === "진입 가능") {
+if (technicalSignal === "매도 후보") {
+  decisionSignal = "🔴 매도 후보";
+
+} else if (technicalSignal === "약한 매도 후보") {
+  decisionSignal = "🟠 매도 관찰";
+
+} else if (decision === "진입 가능") {
   decisionSignal = "🟢 진입 가능";
 
 } else if (decision === "눌림목 대기") {
