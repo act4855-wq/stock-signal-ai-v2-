@@ -469,13 +469,24 @@ if (
 
     if (supportDistance <= 0.12) {
 
-      entryCandidate =
-        roundPrice(
-          support +
-          (price - support) * 0.25
-        );
+  const supportBasedEntry =
+    roundPrice(
+      support +
+      (price - support) * 0.25
+    );
 
-    } else {
+  const atrEntryCandidate =
+    roundPrice(
+      price * (1 - pullbackPct)
+    );
+
+  entryCandidate =
+    Math.max(
+      supportBasedEntry,
+      atrEntryCandidate
+    );
+
+} else {
 
       entryCandidate =
         roundPrice(
