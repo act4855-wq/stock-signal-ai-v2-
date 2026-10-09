@@ -1020,10 +1020,26 @@ document.getElementById(
         displayPrice(data.price);
 
 
-      document.getElementById(
-        "trend"
-      ).textContent =
-        translateTrend(data.trend);
+     let displayTrend = translateTrend(data.trend);
+
+if (data.emaAlignment === "bullish") {
+  displayTrend = "상승";
+} else if (data.emaAlignment === "bearish") {
+  displayTrend = "하락";
+} else if (data.emaAlignment === "mixed") {
+  if (data.ema200Position === "price_below") {
+    displayTrend = "혼조 · 장기 하락 우위";
+  } else if (data.ema200Position === "price_above") {
+    displayTrend = "혼조 · 장기 상승 우위";
+  } else {
+    displayTrend = "혼조";
+  }
+}
+
+document.getElementById(
+  "trend"
+).textContent =
+  displayTrend;
 
 
       document.getElementById(
