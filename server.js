@@ -159,7 +159,6 @@ if (
       `거래량 ${volumeRatio.toFixed(2)}배: 평균 대비 증가`
     );
 } else if (volumeRatio < 0.6) {
-  score -= 1;
 
   reasons.push(
   volumeRatio < 0.01
