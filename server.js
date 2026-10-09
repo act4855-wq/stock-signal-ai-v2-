@@ -607,12 +607,22 @@ if (
 
     if (supportDistanceFromEntry <= 0.10) {
 
-      stopLoss =
-        roundPrice(validSupport * 0.98);
+  const supportStop =
+    roundPrice(validSupport * 0.98);
 
-      stopSource =
-        "차트 지지선 기준";
+  const maxAllowedStop =
+    roundPrice(
+      entryCandidate * (1 - maxStopPct)
+    );
 
+  stopLoss =
+    Math.max(
+      supportStop,
+      maxAllowedStop
+    );
+
+  stopSource =
+    `차트 지지선 기준, 최대 ${Math.round(maxStopPct * 100)}% 제한`;
     } else {
 
     if (atrStopDistance !== null) {
