@@ -436,7 +436,24 @@ if (
   // ------------------------------------------
 
   let entryCandidate = null;
+ let pullbackPct = 0.03;
 
+if (
+  atr !== null &&
+  atr > 0 &&
+  price !== null &&
+  price > 0
+) {
+  const atrPct = atr / price;
+
+  if (atrPct < 0.02) {
+    pullbackPct = 0.02;
+  } else if (atrPct < 0.04) {
+    pullbackPct = 0.03;
+  } else {
+    pullbackPct = 0.05;
+  }
+}
   if (support !== null && support < price) {
 
     const supportDistance =
@@ -461,13 +478,17 @@ if (
     } else {
 
       entryCandidate =
-        roundPrice(price * 0.97);
+        roundPrice(
+  price * (1 - pullbackPct)
+);
     }
 
   } else {
 
     entryCandidate =
-      roundPrice(price * 0.97);
+     roundPrice(
+  price * (1 - pullbackPct)
+);
   }
 
 
