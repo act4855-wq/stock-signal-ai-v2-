@@ -53,6 +53,12 @@ function calculateSignal(data) {
   const ema20 = num(data.ema20);
   const ema50 = num(data.ema50);
   const ema200 = num(data.ema200);
+
+  const ema20Position = String(data.ema20Position || "").trim();
+  const ema50Position = String(data.ema50Position || "").trim();
+  const ema200Position = String(data.ema200Position || "").trim();
+  const emaAlignment = String(data.emaAlignment || "").trim();
+  
   const k = num(data.stochK);
   const d = num(data.stochD);
   const macd = num(data.macd);
@@ -66,24 +72,55 @@ function calculateSignal(data) {
   let score = 0;
   const reasons = [];
 // EMA Trend Filter
-if (
+const numericEmaTrendReady =
   price !== null &&
   ema20 !== null &&
-  ema50 !== null
-) {
+  ema50 !== null;
+
+const visualEmaTrendReady =
+  (
+    ema20Position === "price_above" ||
+    ema20Position === "price_below"
+  ) &&
+  (
+    ema50Position === "price_above" ||
+    ema50Position === "price_below"
+  ) &&
+  (
+    emaAlignment === "bullish" ||
+    emaAlignment === "bearish" ||
+    emaAlignment === "mixed"
+  );
+
+if (numericEmaTrendReady) {
   if (price > ema20 && ema20 > ema50) {
     score += 2;
     reasons.push("EMA20 > EMA50, 가격이 EMA20 위: 상승 추세");
-
   } else if (price < ema20 && ema20 < ema50) {
     score -= 2;
     reasons.push("EMA20 < EMA50, 가격이 EMA20 아래: 하락 추세");
-
   } else {
     reasons.push("EMA20/50 정렬 혼조: 추세 불명확");
   }
+} else if (visualEmaTrendReady) {
+  if (
+    emaAlignment === "bullish" &&
+    ema20Position === "price_above" &&
+    ema50Position === "price_above"
+  ) {
+    score += 2;
+    reasons.push("색상 판독 기준 EMA 상승 정렬: 가격이 EMA20/50 위");
+  } else if (
+    emaAlignment === "bearish" &&
+    ema20Position === "price_below" &&
+    ema50Position === "price_below"
+  ) {
+    score -= 2;
+    reasons.push("색상 판독 기준 EMA 하락 정렬: 가격이 EMA20/50 아래");
+  } else {
+    reasons.push("색상 판독 기준 EMA 정렬 혼조: 추세 불명확");
+  }
 }
-
 // 장기 추세 확인
 if (
   price !== null &&
@@ -92,11 +129,16 @@ if (
   if (price > ema200) {
     score += 1;
     reasons.push("가격이 EMA200 위: 장기 상승 우위");
-
   } else if (price < ema200) {
     score -= 1;
     reasons.push("가격이 EMA200 아래: 장기 하락 우위");
   }
+} else if (ema200Position === "price_above") {
+  score += 1;
+  reasons.push("색상 판독 기준 가격이 EMA200 위: 장기 상승 우위");
+} else if (ema200Position === "price_below") {
+  score -= 1;
+  reasons.push("색상 판독 기준 가격이 EMA200 아래: 장기 하락 우위");
 }
   
 // Volume
@@ -230,30 +272,50 @@ if (macd !== null && macdSignal !== null) {
 }
 
 
- const bullishTrend =
+ const hasNumericShortTrend =
   price !== null &&
   ema20 !== null &&
-  ema50 !== null &&
-  price > ema20 &&
-  ema20 > ema50;
+  ema50 !== null;
+
+const bullishTrend =
+  hasNumericShortTrend
+    ? (
+        price > ema20 &&
+        ema20 > ema50
+      )
+    : (
+        emaAlignment === "bullish" &&
+        ema20Position === "price_above" &&
+        ema50Position === "price_above"
+      );
 
 const bearishTrend =
-  price !== null &&
-  ema20 !== null &&
-  ema50 !== null &&
-  price < ema20 &&
-  ema20 < ema50;
+  hasNumericShortTrend
+    ? (
+        price < ema20 &&
+        ema20 < ema50
+      )
+    : (
+        emaAlignment === "bearish" &&
+        ema20Position === "price_below" &&
+        ema50Position === "price_below"
+      );
 
 const strongBullishTrend =
   bullishTrend &&
-  ema200 !== null &&
-  price > ema200;
+  (
+    price !== null && ema200 !== null
+      ? price > ema200
+      : ema200Position === "price_above"
+  );
 
 const strongBearishTrend =
   bearishTrend &&
-  ema200 !== null &&
-  price < ema200;
-
+  (
+    price !== null && ema200 !== null
+      ? price < ema200
+      : ema200Position === "price_below"
+  );
 
 let signal = "관망";
 
@@ -282,11 +344,11 @@ if (
   signal = "약한 매도 후보";
 }
 if (
-  price !== null &&
-  (ema20 === null || ema50 === null)
+  !numericEmaTrendReady &&
+  !visualEmaTrendReady
 ) {
   reasons.push(
-    "EMA20/50을 확인할 수 없어 추세 필터를 통과하지 못함"
+    "EMA20/50 숫자 또는 색상 위치를 확인할 수 없어 추세 필터를 통과하지 못함"
   );
 }
 
@@ -294,10 +356,27 @@ return {
   score,
   signal,
   reasons,
-  trendFilterReady:
+ trendFilterReady:
+  (
     price !== null &&
     ema20 !== null &&
     ema50 !== null
+  ) ||
+  (
+    (
+      ema20Position === "price_above" ||
+      ema20Position === "price_below"
+    ) &&
+    (
+      ema50Position === "price_above" ||
+      ema50Position === "price_below"
+    ) &&
+    (
+      emaAlignment === "bullish" ||
+      emaAlignment === "bearish" ||
+      emaAlignment === "mixed"
+    )
+  )
 };
 }
 
@@ -966,11 +1045,29 @@ ${timeframe}
 
 - atr은 차트에 표시된 ATR(14)의 가장 최근 현재값만 숫자로 반환한다.
 - ATR 값이 명확하게 보이지 않으면 atr은 null이다.
-- ema20은 차트에 표시된 EMA(20)의 가장 최근 현재값만 숫자로 반환한다.
-- ema50은 차트에 표시된 EMA(50)의 가장 최근 현재값만 숫자로 반환한다.
-- ema200은 차트에 표시된 EMA(200)의 가장 최근 현재값만 숫자로 반환한다.
-- EMA 값이 화면에서 명확하게 보이지 않으면 해당 값은 null로 반환한다.
-- EMA 선의 색상만 보고 값을 추정하지 않는다.
+
+- 이 차트에서 EMA20은 초록색 선이다.
+- 이 차트에서 EMA50은 빨간색 선이다.
+- 이 차트에서 EMA200은 파란색 선이다.
+- 색상은 각 EMA 선을 서로 구분하기 위한 기준으로 사용한다.
+- EMA의 정확한 숫자값이 화면에 명확히 표시되면 ema20, ema50, ema200에 숫자로 반환한다.
+- EMA 숫자값이 명확하게 보이지 않으면 해당 값은 null로 반환한다.
+- 숫자값이 보이지 않는 경우에도 EMA 선의 상대적 위치는 시각적으로 판단한다.
+- 현재 가격이 EMA20 위인지 아래인지 판단한다.
+- 현재 가격이 EMA50 위인지 아래인지 판단한다.
+- 현재 가격이 EMA200 위인지 아래인지 판단한다.
+- EMA20, EMA50, EMA200의 상대적 정렬 상태를 판단한다.
+
+- ema20Position, ema50Position, ema200Position은 현재 가격과 각 EMA 선의 상대 위치를 나타낸다.
+- 현재 가격이 해당 EMA 선보다 위에 있으면 "price_above"를 반환한다.
+- 현재 가격이 해당 EMA 선보다 아래에 있으면 "price_below"를 반환한다.
+- 위치를 명확하게 판단할 수 없으면 null을 반환한다.
+- emaAlignment는 EMA20, EMA50, EMA200의 상대적 정렬 상태를 나타낸다.
+- EMA20 > EMA50 > EMA200 순서로 위에서 아래로 정렬되어 있으면 "bullish"를 반환한다.
+- EMA20 < EMA50 < EMA200 순서로 아래에서 위로 정렬되어 있으면 "bearish"를 반환한다.
+- 그 외에는 "mixed"를 반환한다.
+- 정렬 상태를 명확하게 판단할 수 없으면 null을 반환한다.
+
 - support는 차트에 명확히 표시된 저점 또는 지지 가격을
   실제로 읽을 수 있는 경우에만 숫자로 반환한다.
 
@@ -1016,6 +1113,10 @@ confidence
   "ema20": null,
   "ema50": null,
   "ema200": null,
+  "ema20Position": null,
+  "ema50Position": null,
+  "ema200Position": null,
+  "emaAlignment": null, 
   "stochK": null,
   "stochD": null,
   "macd": null,
