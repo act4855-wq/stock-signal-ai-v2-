@@ -844,8 +844,7 @@ if (
 
 
   if (entryStatus === "관망") {
-
-    if (
+    
    if (
   technical.score >= 4 &&
   (
