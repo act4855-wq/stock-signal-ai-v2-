@@ -770,42 +770,46 @@ stopSource =
 
   let tradeQuality = "관찰";
 
+if (riskReward !== null) {
 
-  if (riskReward !== null) {
+  if (riskReward < 1) {
 
-    if (
-      riskReward >= 2 &&
-      technical.score >= 2
-    ) {
+    tradeQuality =
+      "진입 금지";
 
-      tradeQuality =
-        "양호";
+  } else if (riskReward < 1.5) {
 
-    } else if (
-      riskReward >= 1.5 &&
-      technical.score >= 1
-    ) {
+    tradeQuality =
+      "관망";
 
-      tradeQuality =
-        "보통";
+  } else if (riskReward < 2) {
 
-    } else {
+    tradeQuality =
+      "검토 가능";
 
-      tradeQuality =
-        "진입 보류";
-    }
+  } else {
+
+    tradeQuality =
+      "우수";
   }
+}
 
 
   // ------------------------------------------
   // 9. 진입 판단
   // ------------------------------------------
 
-  let entryStatus = "관망";
-  if (
+ let entryStatus = "관망";
+
+if (tradeQuality === "진입 금지") {
+
+  entryStatus = "신규매수 보류";
+
+} else if (
   technical.signal === "매도 후보" ||
   technical.signal === "약한 매도 후보"
 ) {
+
   entryStatus = "신규매수 보류";
 }
 let validEntryResistance = resistance;
@@ -842,20 +846,28 @@ if (
   if (entryStatus === "관망") {
 
     if (
-      technical.score >= 4 &&
-      tradeQuality !== "진입 보류"
-    ) {
+   if (
+  technical.score >= 4 &&
+  (
+    tradeQuality === "검토 가능" ||
+    tradeQuality === "우수"
+  )
+) {
 
-      entryStatus =
-        "매수 후보";
+  entryStatus =
+    "매수 후보";
 
-    } else if (
-      technical.score >= 2 &&
-      tradeQuality !== "진입 보류"
-    ) {
+} else if (
+  technical.score >= 2 &&
+  (
+    tradeQuality === "관망" ||
+    tradeQuality === "검토 가능" ||
+    tradeQuality === "우수"
+  )
+) {
 
-      entryStatus =
-        "분할매수 관찰";
+  entryStatus =
+    "분할매수 관찰";
 
     } else if (
       technical.score <= -2
@@ -898,15 +910,15 @@ let strategy = "";
       `${riskReward}:1로 불리합니다. ` +
       `현재 위치에서 신규 진입보다 더 좋은 가격을 기다립니다.`;
 
-  } else if (
-    tradeQuality === "진입 보류"
-  ) {
+ } else if (
+  tradeQuality === "관망"
+) {
 
-    strategy =
-      `진입 후보가 ${entryCandidate} 기준 손익비는 ` +
-      `${riskReward !== null ? riskReward + ":1" : "계산 불가"}이지만 ` +
-      `기술적 신호가 충분하지 않습니다. ` +
-      `눌림목 또는 추가 상승 확인을 기다립니다.`;
+  strategy =
+    `진입 후보가 ${entryCandidate} 기준 손익비는 ` +
+    `${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다. ` +
+    `손익비가 아직 충분하지 않아 신규 진입은 서두르지 않습니다. ` +
+    `더 좋은 가격이나 추가 상승 확인을 기다립니다.`;
 
   } else if (
     entryStatus.includes("저항")
@@ -917,21 +929,33 @@ let strategy = "";
       `추격 진입보다 저항 돌파 확인 또는 눌림목을 기다립니다.`;
 
   } else if (
-    technical.score >= 2
-  ) {
+  tradeQuality === "우수" &&
+  technical.score >= 2
+) {
 
-    strategy =
-      `진입 후보가 ${entryCandidate} 부근에서 지지를 확인합니다. ` +
-      `목표가 ${target1}, 손절 기준 ${stopLoss}, ` +
-      `예상 손익비는 ${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다.`;
+  strategy =
+    `손익비가 우수하고 기술적 조건도 양호합니다. ` +
+    `진입 후보가 ${entryCandidate} 부근에서 지지를 확인합니다. ` +
+    `목표가 ${target1}, 손절 기준 ${stopLoss}, ` +
+    `예상 손익비는 ${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다.`;
 
-  } else {
+} else if (
+  tradeQuality === "검토 가능" &&
+  technical.score >= 1
+) {
 
-    strategy =
-      `손익비가 양호하더라도 기술적 신호가 아직 강하지 않습니다. ` +
-      `현재가 추격보다 진입 후보가 ${entryCandidate} 부근의 가격 움직임을 확인합니다.`;
-  }
+  strategy =
+    `손익비는 검토 가능한 수준입니다. ` +
+    `진입 후보가 ${entryCandidate} 부근의 지지와 추가 상승 신호를 확인한 뒤 진입을 검토합니다. ` +
+    `목표가 ${target1}, 손절 기준 ${stopLoss}, ` +
+    `예상 손익비는 ${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다.`;
 
+} else {
+
+  strategy =
+    `손익비가 양호하더라도 기술적 신호가 아직 충분하지 않습니다. ` +
+    `현재가 추격보다 진입 후보가 ${entryCandidate} 부근의 가격 움직임을 확인합니다.`;
+}
 
   return {
 
