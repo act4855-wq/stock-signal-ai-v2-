@@ -993,13 +993,17 @@ function calculateEntryDecision(data, technical, plan) {
   const price = num(data.price);
   const resistance = num(data.resistance);
   const entry = num(plan?.entryCandidate);
-const emaAlignment = String(data.emaAlignment || "").trim();
-const ema20Position = String(data.ema20Position || "").trim();
-const ema50Position = String(data.ema50Position || "").trim();
-const ema200Position = String(data.ema200Position || "").trim();  
-const volume = num(data.volume);
-const volumeAvg = num(data.volumeAvg);
-const volumeRatio =
+ 
+   const tradeQuality =
+  String(plan?.tradeQuality || "").trim();
+  
+  const emaAlignment = String(data.emaAlignment || "").trim();
+  const ema20Position = String(data.ema20Position || "").trim();
+  const ema50Position = String(data.ema50Position || "").trim();
+  const ema200Position = String(data.ema200Position || "").trim();  
+  const volume = num(data.volume);
+  const volumeAvg = num(data.volumeAvg);
+  const volumeRatio =
   volume !== null &&
   volumeAvg !== null &&
   volumeAvg > 0
@@ -1026,21 +1030,57 @@ const macdSignal = num(data.macdSignal);
   let decisionReason =
     "추가적인 가격 움직임을 확인합니다.";
 
-  // 강한 매수 신호
-  if (
-    technical.score >= 4 &&
-    entryDistancePct <= 1
-  ) {
-    entryDecision = "지금 진입";
-    decisionReason =
-      "기술적 매수 신호가 강하고 현재가가 진입 후보가에 근접해 있습니다.";
-  }
+if (tradeQuality === "진입 금지") {
 
-  // 매수 신호는 있으나 진입가까지 기다리는 경우
+  entryDecision = "관망";
+  decisionReason =
+    "예상 손익비가 1:1 미만으로 불리하여 신규 진입을 보류합니다.";
+
+}
+
+else if (technical.trendFilterReady === false) {
+
+  entryDecision = "관망";
+  decisionReason =
+    "EMA20/50을 확인할 수 없어 추세 필터를 통과하지 못했습니다. 추세가 확인될 때까지 신규 진입을 보류합니다.";
+
+}
   else if (
-    technical.score >= 2 &&
-    entryDistancePct > 1
-  ) {
+  emaAlignment === "mixed" ||
+  ema200Position === "price_below"
+) {
+
+  entryDecision = "관망";
+  decisionReason =
+    "EMA 정렬이 혼조이거나 가격이 EMA200 아래에 있어 추세 확신이 부족합니다. 추세 정렬이 개선될 때까지 신규 진입을 보류합니다.";
+
+}
+  // 강한 매수 신호
+else if (
+  technical.score >= 4 &&
+  entryDistancePct <= 1 &&
+  emaAlignment === "bullish" &&
+  ema200Position === "price_above" &&
+  (
+    tradeQuality === "검토 가능" ||
+    tradeQuality === "우수"
+  )
+) {
+  entryDecision = "지금 진입";
+decisionReason =
+  "기술적 매수 신호가 강하고 현재가가 진입 후보가에 근접해 있습니다.";  
+  }
+    
+    // 매수 신호는 있으나 진입가까지 기다리는 경우
+  else if (
+  technical.score >= 2 &&
+  entryDistancePct > 1 &&
+  (
+    tradeQuality === "관망" ||
+    tradeQuality === "검토 가능" ||
+    tradeQuality === "우수"
+  )
+) {
     entryDecision = "눌림목 대기";
     decisionReason =
       `기술적 매수 신호는 있으나 진입 후보가까지 약 ${entryDistancePct.toFixed(1)}%의 가격 조정 여지가 있습니다.`;
