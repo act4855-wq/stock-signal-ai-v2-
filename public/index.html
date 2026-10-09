@@ -1087,60 +1087,77 @@ document.getElementById(
           plan.entryStatus
         );
 
-
+const isSellSignal =
+  data.signal === "매도 후보" ||
+  data.signal === "약한 매도 후보";
+      
       document.getElementById(
-        "entryCandidate"
-      ).textContent =
-        displayPrice(
-          plan.entryCandidate
-        );
+  "entryCandidate"
+).textContent =
+  isSellSignal
+    ? "신규매수 비활성"
+    : displayPrice(
+        plan.entryCandidate
+      );
+
+     document.getElementById(
+  "target1"
+).textContent =
+  isSellSignal
+    ? "-"
+    : displayPrice(
+        plan.target1
+      );
 
 
-      document.getElementById(
-        "target1"
-      ).textContent =
-        displayPrice(
-          plan.target1
-        );
+     document.getElementById(
+  "targetSource"
+).textContent =
+  isSellSignal
+    ? "-"
+    : "출처: " +
+      displayValue(
+        plan.targetSource
+      );
 
 
-      document.getElementById(
-        "targetSource"
-      ).textContent =
-        "출처: " +
-        displayValue(
-          plan.targetSource
-        );
+     document.getElementById(
+  "stopLoss"
+).textContent =
+  isSellSignal
+    ? "-"
+    : displayPrice(
+        plan.stopLoss
+      );
+      
+
+     document.getElementById(
+  "stopSource"
+).textContent =
+  isSellSignal
+    ? "-"
+    : "출처: " +
+      displayValue(
+        plan.stopSource
+      );
 
 
-      document.getElementById(
-        "stopLoss"
-      ).textContent =
-        displayPrice(
-          plan.stopLoss
-        );
+     document.getElementById(
+  "expectedGain"
+).textContent =
+  isSellSignal
+    ? "-"
+    : displayPercent(
+        plan.expectedGainPct
+      );
 
 
-      document.getElementById(
-        "stopSource"
-      ).textContent =
-        "출처: " +
-        displayValue(
-          plan.stopSource
-        );
-
-
-      document.getElementById(
-        "expectedGain"
-      ).textContent =
-        displayPercent(
-          plan.expectedGainPct
-        );
-
-
-      document.getElementById(
-        "expectedLoss"
-      ).textContent =
+     document.getElementById(
+  "expectedLoss"
+).textContent =
+  isSellSignal
+    ? "-"
+    : (
         plan.expectedLossPct !== null &&
         plan.expectedLossPct !== undefined
           ? "-" +
@@ -1150,16 +1167,21 @@ document.getElementById(
               )
             ) +
             "%"
-          : "계산 불가";
+          : "판독 불가"
+      );
 
 
       document.getElementById(
-        "riskReward"
-      ).textContent =
+  "riskReward"
+).textContent =
+  isSellSignal
+    ? "-"
+    : (
         plan.riskReward !== null &&
         plan.riskReward !== undefined
           ? plan.riskReward + " : 1"
-          : "계산 불가";
+          : "계산 불가"
+      );
 
 
       document.getElementById(
