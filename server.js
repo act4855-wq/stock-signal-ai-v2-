@@ -904,7 +904,22 @@ function calculateEntryDecision(data, technical, plan) {
   const price = num(data.price);
   const resistance = num(data.resistance);
   const entry = num(plan?.entryCandidate);
+const emaAlignment = String(data.emaAlignment || "").trim();
+const ema200Position = String(data.ema200Position || "").trim();
 
+const volume = num(data.volume);
+const volumeAvg = num(data.volumeAvg);
+const volumeRatio =
+  volume !== null &&
+  volumeAvg !== null &&
+  volumeAvg > 0
+    ? volume / volumeAvg
+    : null;
+
+const stochK = num(data.stochK);
+const macd = num(data.macd);
+const macdSignal = num(data.macdSignal);
+  
   if (price === null || entry === null) {
     return {
       entryDecision: "관망",
@@ -967,10 +982,46 @@ else if (
 }
   // 나머지
   else {
-    entryDecision = "관망";
-    decisionReason =
-      `기술적 점수는 ${technical.score}점으로 신규 진입 근거가 충분하지 않습니다. 현재는 관망하면서 추가 상승 신호나 거래량 회복을 확인하는 것이 좋습니다.`;
+  entryDecision = "관망";
+
+  const reasonParts = [];
+
+  if (emaAlignment === "mixed") {
+    reasonParts.push("EMA 정렬이 혼조입니다.");
+  } else if (emaAlignment === "bearish") {
+    reasonParts.push("EMA가 하락 정렬 상태입니다.");
   }
+
+  if (ema200Position === "price_below") {
+    reasonParts.push("가격이 EMA200 아래에 있어 장기 추세가 약합니다.");
+  }
+
+  if (volumeRatio !== null && volumeRatio < 0.6) {
+    reasonParts.push(
+      volumeRatio < 0.01
+        ? "거래량이 평균의 0.01배 미만으로 매우 낮습니다."
+        : `거래량이 평균의 ${volumeRatio.toFixed(2)}배로 낮습니다.`
+    );
+  }
+
+  if (stochK !== null && stochK > 80) {
+    reasonParts.push("스토캐스틱이 과매수 구간이어서 추격 진입에 주의가 필요합니다.");
+  }
+
+  if (
+    macd !== null &&
+    macdSignal !== null &&
+    macd > macdSignal
+  ) {
+    reasonParts.push("MACD는 단기 상승 신호를 보이고 있습니다.");
+  }
+
+  reasonParts.push(
+    `종합 기술적 점수는 ${technical.score}점으로 현재 신규 진입은 보류합니다.`
+  );
+
+  decisionReason = reasonParts.join(" ");
+}
 
   return {
     entryDecision,
