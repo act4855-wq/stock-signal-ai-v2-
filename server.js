@@ -563,10 +563,30 @@ if (
 
   let stopLoss = null;
   let stopSource = "";
+let maxStopPct = 0.06;
 
+if (
+  atr !== null &&
+  atr > 0 &&
+  price !== null &&
+  price > 0
+) {
+  const atrPct = atr / price;
+
+  if (atrPct < 0.02) {
+    maxStopPct = 0.05;
+  } else if (atrPct < 0.04) {
+    maxStopPct = 0.06;
+  } else {
+    maxStopPct = 0.08;
+  }
+}
   const atrStopDistance =
   atr !== null && atr > 0
-    ? Math.min(atr * 1.5, entryCandidate * 0.08)
+    ? Math.min(
+        atr * 1.5,
+        entryCandidate * maxStopPct
+      )
     : null;
   
  if (
@@ -600,7 +620,7 @@ if (
         roundPrice(entryCandidate - atrStopDistance);
 
     stopSource =
-        "ATR 기준 (1.5 ATR, 최대 8% 제한)";
+  `ATR 기준 (1.5 ATR, 최대 ${Math.round(maxStopPct * 100)}% 제한)`;
 } else {
     stopLoss =
         roundPrice(entryCandidate * 0.98);
@@ -615,8 +635,8 @@ if (
     stopLoss =
         roundPrice(entryCandidate - atrStopDistance);
 
-    stopSource =
-        "ATR 기준 (1.5 ATR)";
+stopSource =
+  `ATR 기준 (1.5 ATR, 최대 ${Math.round(maxStopPct * 100)}% 제한)`;
 } else {
     stopLoss =
         roundPrice(entryCandidate * 0.98);
