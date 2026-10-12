@@ -329,7 +329,12 @@ button:disabled {
 </div>
 
 <div class="card">
+<label>시장 선택</label>
 
+<select id="market">
+  <option value="US" selected>미국 주식</option>
+  <option value="KR">국내 주식</option>
+</select>
 <label>종목 티커</label>
 
 <input
@@ -654,7 +659,21 @@ V6 위험관리 매매 계획
 
 
 <script>
+const marketSelect =
+  document.getElementById("market");
 
+const tickerInput =
+  document.getElementById("ticker");
+
+marketSelect.addEventListener("change", () => {
+  if (marketSelect.value === "KR") {
+    tickerInput.value = "";
+    tickerInput.placeholder = "예: 005930, 000660";
+  } else {
+    tickerInput.value = "";
+    tickerInput.placeholder = "예: TSLA, TSLL, NVDA";
+  }
+});
 const imageInput =
   document.getElementById("image");
 
@@ -890,6 +909,12 @@ formData.append(
           .trim()
       );
 
+      formData.append(
+  "market",
+  document
+    .getElementById("market")
+    .value
+      );
 
       formData.append(
         "timeframe",
