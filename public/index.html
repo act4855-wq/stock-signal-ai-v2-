@@ -775,6 +775,13 @@ function displayPrice(value) {
     return "판독 불가";
   }
 
+  const market =
+    document.getElementById("market")?.value || "US";
+
+  if (market === "KR") {
+   return "₩" + Number(value).toLocaleString("ko-KR");
+  }
+
   return "$" + value;
 }
 
