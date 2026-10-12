@@ -1364,7 +1364,7 @@ confidence
   anyOf: [
     {
       type: "string",
-      pattern: "^[A-Z]{1,5}$"
+      pattern: "^([A-Z]{1,5}|[0-9]{6})$"
     },
     {
       type: "null"
