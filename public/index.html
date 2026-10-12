@@ -335,7 +335,7 @@ button:disabled {
   <option value="US" selected>미국 주식</option>
   <option value="KR">국내 주식</option>
 </select>
-<label>종목 티커</label>
+<label id="tickerLabel">종목 티커</label>
 
 <input
   id="ticker"
@@ -662,16 +662,23 @@ V6 위험관리 매매 계획
 const marketSelect =
   document.getElementById("market");
 
-const tickerInput =
-  document.getElementById("ticker");
+const tickerLabel =
+  document.getElementById("tickerLabel");
+
+  const resultTickerLabel =
+  document.getElementById("resultTickerLabel");
 
 marketSelect.addEventListener("change", () => {
   if (marketSelect.value === "KR") {
     tickerInput.value = "";
     tickerInput.placeholder = "예: 005930, 000660";
+    tickerLabel.textContent = "종목 코드";
+    resultTickerLabel.textContent = "판독 종목코드";
   } else {
     tickerInput.value = "";
     tickerInput.placeholder = "예: TSLA, TSLL, NVDA";
+    tickerLabel.textContent = "종목 티커";
+    resultTickerLabel.textContent = "판독 티커";
   }
 });
 const imageInput =
