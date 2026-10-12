@@ -35,6 +35,22 @@ function roundPrice(value) {
   return Number(value.toFixed(2));
 }
 
+function roundKoreanPrice(value) {
+  if (value === null || !Number.isFinite(value)) return null;
+
+  let tick = 1;
+
+  if (value < 2000) tick = 1;
+  else if (value < 5000) tick = 5;
+  else if (value < 20000) tick = 10;
+  else if (value < 50000) tick = 50;
+  else if (value < 200000) tick = 100;
+  else if (value < 500000) tick = 500;
+  else tick = 1000;
+
+  return Math.round(value / tick) * tick;
+}
+
 function roundPercent(value) {
   if (value === null || !Number.isFinite(value)) return null;
   return Number(value.toFixed(1));
