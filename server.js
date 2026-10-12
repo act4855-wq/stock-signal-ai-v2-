@@ -51,6 +51,14 @@ function roundKoreanPrice(value) {
   return Math.round(value / tick) * tick;
 }
 
+function roundMarketPrice(value, market) {
+  if (market === "KR") {
+    return roundKoreanPrice(value);
+  }
+
+  return roundPrice(value);
+}
+
 function roundPercent(value) {
   if (value === null || !Number.isFinite(value)) return null;
   return Number(value.toFixed(1));
@@ -394,7 +402,7 @@ return {
 // 현재가가 아니라 "진입 후보가" 기준으로 계산
 // ==========================================
 
-function calculateTradePlan(data, technical) {
+function calculateTradePlan(data, technical, market) {
 
   const price = num(data.price);
   const atr = num(data.atr);
@@ -485,16 +493,18 @@ if (
 
     if (supportDistance <= 0.12) {
 
-  const supportBasedEntry =
-    roundPrice(
-      support +
-      (price - support) * 0.25
-    );
+const supportBasedEntry =
+  roundMarketPrice(
+    support +
+    (price - support) * 0.25,
+    market
+  );
 
   const atrEntryCandidate =
-    roundPrice(
-      price * (1 - pullbackPct)
-    );
+  roundMarketPrice(
+    price * (1 - pullbackPct),
+    market
+  );
 
   entryCandidate =
     Math.max(
@@ -505,17 +515,19 @@ if (
 } else {
 
       entryCandidate =
-        roundPrice(
-  price * (1 - pullbackPct)
-);
+  roundMarketPrice(
+    price * (1 - pullbackPct),
+    market
+  );
     }
 
   } else {
 
-    entryCandidate =
-     roundPrice(
-  price * (1 - pullbackPct)
-);
+   entryCandidate =
+  roundMarketPrice(
+    price * (1 - pullbackPct),
+    market
+  );
   }
 
 
@@ -532,8 +544,11 @@ if (
   validResistance > entryCandidate
 ) {
 
-  target1 =
-    roundPrice(validResistance);
+ target1 =
+  roundMarketPrice(
+    validResistance,
+    market
+  );
 
     targetSource =
       "차트 저항선";
@@ -555,18 +570,20 @@ if (
     );
 
   target1 =
-    roundPrice(
-      entryCandidate + atrTargetDistance
-    );
-
+  roundMarketPrice(
+    entryCandidate + atrTargetDistance,
+    market
+  );
   targetSource =
     "ATR 기준 (2 ATR, 최대 12% 제한)";
 
 } else {
 
   target1 =
-    roundPrice(price * 1.05);
-
+  roundMarketPrice(
+    price * 1.05,
+    market
+  );
   targetSource =
     "계산값 (현재가 +5%)";
 }
@@ -624,12 +641,16 @@ if (
     if (supportDistanceFromEntry <= 0.10) {
 
   const supportStop =
-    roundPrice(validSupport * 0.98);
-
+  roundMarketPrice(
+    validSupport * 0.98,
+    market
+  );
+      
   const maxAllowedStop =
-    roundPrice(
-      entryCandidate * (1 - maxStopPct)
-    );
+  roundMarketPrice(
+    entryCandidate * (1 - maxStopPct),
+    market
+  );
 
   stopLoss =
     Math.max(
@@ -643,13 +664,18 @@ if (
 
     if (atrStopDistance !== null) {
     stopLoss =
-        roundPrice(entryCandidate - atrStopDistance);
-
+  roundMarketPrice(
+    entryCandidate - atrStopDistance,
+    market
+  );
     stopSource =
   `ATR 기준 (1.5 ATR, 최대 ${Math.round(maxStopPct * 100)}% 제한)`;
 } else {
-    stopLoss =
-        roundPrice(entryCandidate * 0.98);
+stopLoss =
+  roundMarketPrice(
+    entryCandidate * 0.98,
+    market
+  );
 
     stopSource =
         "위험관리 계산값 (진입가 -2%)";
@@ -664,8 +690,11 @@ if (
 stopSource =
   `ATR 기준 (1.5 ATR, 최대 ${Math.round(maxStopPct * 100)}% 제한)`;
 } else {
-    stopLoss =
-        roundPrice(entryCandidate * 0.98);
+stopLoss =
+  roundMarketPrice(
+    entryCandidate * 0.98,
+    market
+  );
 
     stopSource =
         "위험관리 계산값 (진입가 -2%)";
@@ -1637,11 +1666,12 @@ if (rawTrend.includes("강한 상승")) {
         calculateSignal(extracted);
 
 
-      const tradePlan =
-        calculateTradePlan(
-          extracted,
-          technical
-        );
+const tradePlan =
+  calculateTradePlan(
+    extracted,
+    technical,
+    market
+  );
 const entryDecision =
   calculateEntryDecision(
     extracted,
