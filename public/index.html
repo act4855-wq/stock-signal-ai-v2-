@@ -772,7 +772,7 @@ async function resizeImage(file) {
     );
   });
 }
-function displayPrice(value) {
+function displayPrice(value, market = "US") {
 
   if (
     value === null ||
@@ -782,16 +782,12 @@ function displayPrice(value) {
     return "판독 불가";
   }
 
-  const market =
-    document.getElementById("market")?.value || "US";
-
   if (market === "KR") {
-   return "₩" + Math.round(Number(value)).toLocaleString("ko-KR");
+    return "₩" + Math.round(Number(value)).toLocaleString("ko-KR");
   }
 
   return "$" + value;
 }
-
 
 function displayPercent(value) {
 
@@ -1056,7 +1052,10 @@ document.getElementById(
       document.getElementById(
         "price"
       ).textContent =
-        displayPrice(data.price);
+        displayPrice(
+  data.price,
+  data.market
+);
 
 
      let displayTrend = translateTrend(data.trend);
