@@ -684,9 +684,11 @@ stopLoss =
   } else {
 
   if (atrStopDistance !== null) {
-    stopLoss =
-        roundPrice(entryCandidate - atrStopDistance);
-
+   stopLoss =
+  roundMarketPrice(
+    entryCandidate - atrStopDistance,
+    market
+  );
 stopSource =
   `ATR 기준 (1.5 ATR, 최대 ${Math.round(maxStopPct * 100)}% 제한)`;
 } else {
