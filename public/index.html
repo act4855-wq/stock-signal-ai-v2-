@@ -779,7 +779,7 @@ function displayPrice(value) {
     document.getElementById("market")?.value || "US";
 
   if (market === "KR") {
-   return "₩" + Number(value).toLocaleString("ko-KR");
+   return "₩" + Math.round(Number(value)).toLocaleString("ko-KR");
   }
 
   return "$" + value;
