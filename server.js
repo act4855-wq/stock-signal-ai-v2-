@@ -1685,6 +1685,8 @@ const entryDecision =
 
         ...extracted,
 
+market,
+        
         ticker:
           extracted.ticker ||
           ticker,
