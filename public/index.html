@@ -894,11 +894,30 @@ analyzeBtn.addEventListener(
 
     if (!file) {
 
-      errorBox.textContent =
-        "차트 이미지를 먼저 선택해주세요.";
+  errorBox.textContent =
+    "차트 이미지를 먼저 선택해주세요.";
 
-      return;
-    }
+  return;
+}
+
+const tickerValue =
+  tickerInput.value.trim();
+
+if (marketSelect.value === "KR") {
+  if (!/^[0-9]{6}$/.test(tickerValue)) {
+    errorBox.textContent =
+      "국내주식 종목코드는 6자리 숫자로 입력해주세요. 예: 005930";
+
+    return;
+  }
+} else {
+  if (!/^[A-Za-z]{1,5}$/.test(tickerValue)) {
+    errorBox.textContent =
+      "미국주식 티커는 영문 1~5자로 입력해주세요. 예: NVDA";
+
+    return;
+  }
+}
 
 
     analyzeBtn.disabled = true;
