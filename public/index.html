@@ -1195,141 +1195,173 @@ document.getElementById(
 const isSellSignal =
   data.signal === "매도 후보" ||
   data.signal === "약한 매도 후보";
+
+const isAnalysisInvalid =
+  data.tickerMismatch ||
+  data.timeframeMismatch;
       
-      document.getElementById(
+document.getElementById(
   "entryCandidate"
 ).textContent =
-  isSellSignal
-    ? "신규매수 비활성"
-    : displayPrice(
-    plan.entryCandidate,
-    data.market
-  );
+  isAnalysisInvalid
+    ? "분석 재확인"
+    : isSellSignal
+      ? "신규매수 비활성"
+      : displayPrice(
+          plan.entryCandidate,
+          data.market
+        );
 
-     document.getElementById(
+document.getElementById(
   "target1"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : displayPrice(
-    plan.target1,
-    data.market
-  );
+    : isSellSignal
+      ? "-"
+      : displayPrice(
+          plan.target1,
+          data.market
+        );
 
-     document.getElementById(
+document.getElementById(
   "targetSource"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : "출처: " +
-      displayValue(
-        plan.targetSource
-      );
+    : isSellSignal
+      ? "-"
+      : "출처: " +
+        displayValue(
+          plan.targetSource
+        );
 
-
-     document.getElementById(
+document.getElementById(
   "stopLoss"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : displayPrice(
-    plan.stopLoss,
-    data.market
-  );
+    : isSellSignal
+      ? "-"
+      : displayPrice(
+          plan.stopLoss,
+          data.market
+        );
       
 
-     document.getElementById(
+document.getElementById(
   "stopSource"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : "출처: " +
-      displayValue(
-        plan.stopSource
-      );
+    : isSellSignal
+      ? "-"
+      : "출처: " +
+        displayValue(
+          plan.stopSource
+        );
 
-
-     document.getElementById(
+document.getElementById(
   "expectedGain"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : displayPercent(
-        plan.expectedGainPct
-      );
+    : isSellSignal
+      ? "-"
+      : displayPercent(
+          plan.expectedGainPct
+        );
 
 
-     document.getElementById(
+document.getElementById(
   "expectedLoss"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : (
-        plan.expectedLossPct !== null &&
-        plan.expectedLossPct !== undefined
-          ? "-" +
-            Math.abs(
-              Number(
-                plan.expectedLossPct
-              )
-            ) +
-            "%"
-          : "판독 불가"
-      );
+    : isSellSignal
+      ? "-"
+      : (
+          plan.expectedLossPct !== null &&
+          plan.expectedLossPct !== undefined
+            ? "-" +
+              Math.abs(
+                Number(
+                  plan.expectedLossPct
+                )
+              ) +
+              "%"
+            : "판독 불가"
+        );
 
 
-      document.getElementById(
+document.getElementById(
   "riskReward"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : (
-        plan.riskReward !== null &&
-        plan.riskReward !== undefined
-          ? plan.riskReward + " : 1"
-          : "계산 불가"
-      );
+    : isSellSignal
+      ? "-"
+      : (
+          plan.riskReward !== null &&
+          plan.riskReward !== undefined
+            ? plan.riskReward + " : 1"
+            : "계산 불가"
+        );
 
-
-     document.getElementById(
+document.getElementById(
   "riskLevel"
 ).textContent =
-  isSellSignal
+  isAnalysisInvalid
     ? "-"
-    : displayValue(
-        plan.riskLevel
-      );
+    : isSellSignal
+      ? "-"
+      : displayValue(
+          plan.riskLevel
+        );
 
-
-     document.getElementById(
+document.getElementById(
   "tradeQuality"
 ).textContent =
-  isSellSignal
-    ? "신규매수 비활성"
-    : displayValue(
-        plan.tradeQuality
-      );
+  isAnalysisInvalid
+    ? "분석 재확인"
+    : isSellSignal
+      ? "신규매수 비활성"
+      : displayValue(
+          plan.tradeQuality
+        );
+      
 document.getElementById(
   "entryDecision"
 ).textContent =
-  displayValue(
-    data.entryDecision?.entryDecision
-  );
+  isAnalysisInvalid
+    ? "관망"
+    : displayValue(
+        data.entryDecision?.entryDecision
+      );
 
 document.getElementById(
   "entryDistance"
 ).textContent =
-  data.entryDecision?.entryDistancePct !== null &&
-  data.entryDecision?.entryDistancePct !== undefined
-    ? data.entryDecision.entryDistancePct + "%"
-    : "계산 불가";
-
+  isAnalysisInvalid
+    ? "-"
+    : (
+        data.entryDecision?.entryDistancePct !== null &&
+        data.entryDecision?.entryDistancePct !== undefined
+          ? data.entryDecision.entryDistancePct + "%"
+          : "계산 불가"
+      );
 document.getElementById(
   "decisionReason"
 ).textContent =
-  displayValue(
-    data.entryDecision?.decisionReason
-  );
+  isAnalysisInvalid
+    ? (
+        data.tickerMismatch
+          ? "입력한 종목과 차트에서 판독된 종목이 다릅니다. 분석을 다시 확인해주세요."
+          : "선택한 시간봉과 차트에서 판독된 시간봉이 다릅니다. 분석을 다시 확인해주세요."
+      )
+    : displayValue(
+        data.entryDecision?.decisionReason
+      );
 const decision =
   data.entryDecision?.entryDecision || "판단 불가";
 
