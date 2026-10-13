@@ -432,7 +432,7 @@ AI 자동 분석
 
 
 <div class="row">
-<span id="resultTickerLabel">판독 종목</span>
+<span id="resultTickerLabel">판독 티커</span>
 <strong id="resultTicker">-</strong>
 </div>
 
@@ -671,7 +671,7 @@ const tickerLabel =
   const resultTickerLabel =
   document.getElementById("resultTickerLabel");
 
-marketSelect.addEventListener("change", () => {
+function updateMarketUI() {
   if (marketSelect.value === "KR") {
     tickerInput.value = "";
     tickerInput.placeholder = "예: 005930, 000660";
@@ -683,10 +683,18 @@ marketSelect.addEventListener("change", () => {
     tickerLabel.textContent = "종목 티커";
     resultTickerLabel.textContent = "판독 티커";
   }
-});
+}
+
+marketSelect.addEventListener(
+  "change",
+  updateMarketUI
+);
+
+updateMarketUI();
+
 const imageInput =
   document.getElementById("image");
-
+  
 const preview =
   document.getElementById("preview");
 
