@@ -436,6 +436,10 @@ AI 자동 분석
 <strong id="resultTicker">-</strong>
 </div>
 
+<div id="tickerMismatchWarning"
+     style="display:none; color:#ff7474; margin:12px 0; font-weight:bold;">
+</div>
+  
 <div class="row">
 <span>캡처 표시 가격</span>
 <strong id="price">-</strong>
@@ -1078,7 +1082,18 @@ document.getElementById(
       ).textContent =
         displayValue(data.ticker);
 
+const tickerMismatchWarning =
+  document.getElementById("tickerMismatchWarning");
 
+if (data.tickerMismatch) {
+  tickerMismatchWarning.style.display = "block";
+  tickerMismatchWarning.textContent =
+    "입력한 종목과 차트에서 판독된 종목이 다릅니다. 차트 이미지를 다시 확인해주세요.";
+} else {
+  tickerMismatchWarning.style.display = "none";
+  tickerMismatchWarning.textContent = "";
+}
+      
       document.getElementById(
         "price"
       ).textContent =
