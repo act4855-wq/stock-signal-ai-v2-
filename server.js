@@ -1253,7 +1253,7 @@ app.post(
  upload.fields([
   { name: "weeklyImage", maxCount: 1 },
   { name: "dailyImage", maxCount: 1 }
-])
+]),
 
   async (req, res) => {
 
