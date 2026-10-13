@@ -935,7 +935,17 @@ if (
   // ------------------------------------------
 
   
+const formatStrategyPrice = (value) => {
+  if (value === null || value === undefined) {
+    return "계산 불가";
+  }
 
+  if (market === "KR") {
+    return "₩" + Number(value).toLocaleString("ko-KR");
+  }
+
+  return "$" + Number(value).toFixed(2);
+};
 let strategy = "";
  if (
   technical.signal === "매도 후보" ||
@@ -952,7 +962,7 @@ let strategy = "";
 ) {
 
     strategy =
-      `진입 후보가 ${entryCandidate} 기준 예상 손익비가 ` +
+      `진입 후보가 ${formatStrategyPrice(entryCandidate)} 기준 예상 손익비가 ` +
       `${riskReward}:1로 불리합니다. ` +
       `현재 위치에서 신규 진입보다 더 좋은 가격을 기다립니다.`;
 
@@ -961,7 +971,7 @@ let strategy = "";
 ) {
 
   strategy =
-    `진입 후보가 ${entryCandidate} 기준 손익비는 ` +
+    `진입 후보가 ${formatStrategyPrice(entryCandidate)} 기준 손익비는 ` +
     `${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다. ` +
     `손익비가 아직 충분하지 않아 신규 진입은 서두르지 않습니다. ` +
     `더 좋은 가격이나 추가 상승 확인을 기다립니다.`;
@@ -981,8 +991,8 @@ let strategy = "";
 
   strategy =
     `손익비가 우수하고 기술적 조건도 양호합니다. ` +
-    `진입 후보가 ${entryCandidate} 부근에서 지지를 확인합니다. ` +
-    `목표가 ${target1}, 손절 기준 ${stopLoss}, ` +
+    `진입 후보가 ${formatStrategyPrice(entryCandidate)} 부근에서 지지를 확인합니다. ` +
+    `목표가 ${formatStrategyPrice(target1)}, 손절 기준 ${formatStrategyPrice(stopLoss)}, ` +
     `예상 손익비는 ${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다.`;
 
 } else if (
@@ -992,15 +1002,15 @@ let strategy = "";
 
   strategy =
     `손익비는 검토 가능한 수준입니다. ` +
-    `진입 후보가 ${entryCandidate} 부근의 지지와 추가 상승 신호를 확인한 뒤 진입을 검토합니다. ` +
-    `목표가 ${target1}, 손절 기준 ${stopLoss}, ` +
+    `진입 후보가 ${formatStrategyPrice(entryCandidate)} 부근의 지지와 추가 상승 신호를 확인한 뒤 진입을 검토합니다. ` +
+    `목표가 ${formatStrategyPrice(target1)}, 손절 기준 ${formatStrategyPrice(stopLoss)}, ` +
     `예상 손익비는 ${riskReward !== null ? riskReward + ":1" : "계산 불가"}입니다.`;
 
 } else {
 
   strategy =
     `손익비가 양호하더라도 기술적 신호가 아직 충분하지 않습니다. ` +
-    `현재가 추격보다 진입 후보가 ${entryCandidate} 부근의 가격 움직임을 확인합니다.`;
+    `현재가 추격보다 진입 후보가 ${formatStrategyPrice(entryCandidate)} 부근의 가격 움직임을 확인합니다.`;
 }
 
   return {
