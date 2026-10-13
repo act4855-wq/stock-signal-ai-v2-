@@ -1734,6 +1734,16 @@ const entryDecision =
   entryDecision.decisionReason =
   "입력한 종목과 차트에서 판독된 종목이 달라 진입 판단을 중단합니다.";
 }
+      if (timeframeMismatch) {
+  tradePlan.entryStatus = "신규매수 보류";
+  tradePlan.tradeQuality = "분석 재확인";
+  tradePlan.strategy =
+    "선택한 시간봉과 차트에서 판독된 시간봉이 다릅니다. 차트 시간봉을 다시 확인한 뒤 분석해주세요.";
+
+  entryDecision.entryDecision = "관망";
+  entryDecision.decisionReason =
+    "선택한 시간봉과 차트 시간봉이 달라 진입 판단을 중단합니다.";
+}
       const result = {
 
         ...extracted,
