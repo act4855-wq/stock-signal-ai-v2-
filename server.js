@@ -1049,7 +1049,8 @@ function calculateEntryDecision(data, technical, plan) {
   const price = num(data.price);
   const resistance = num(data.resistance);
   const entry = num(plan?.entryCandidate);
- 
+  const weeklyTrend =
+  String(data.weeklyTrend || "").trim();
    const tradeQuality =
   String(plan?.tradeQuality || "").trim();
   
@@ -1094,6 +1095,14 @@ if (tradeQuality === "진입 금지") {
 
 }
 
+else if (weeklyTrend === "bearish") {
+
+  entryDecision = "관망";
+  decisionReason =
+    "주봉 추세가 하락이므로 일봉의 단기 매수 신호가 있더라도 신규 진입을 보류합니다.";
+
+}
+  
 else if (technical.trendFilterReady === false) {
 
   entryDecision = "관망";
@@ -1115,7 +1124,10 @@ else if (technical.trendFilterReady === false) {
 else if (
   technical.score >= 4 &&
   entryDistancePct <= 1 &&
+  weeklyTrend === "bullish" &&
   emaAlignment === "bullish" &&
+  ema20Position === "price_above" &&
+  ema50Position === "price_above" &&
   ema200Position === "price_above" &&
   (
     tradeQuality === "검토 가능" ||
@@ -1238,29 +1250,44 @@ else if (
 
 app.post(
   "/api/analyze",
-  upload.single("image"),
+ upload.fields([
+  { name: "weeklyImage", maxCount: 1 },
+  { name: "dailyImage", maxCount: 1 }
+])
 
   async (req, res) => {
 
     try {
 
-      if (!req.file) {
+     const weeklyFile =
+  req.files?.weeklyImage?.[0];
 
-        return res.status(400).json({
-          error: "이미지가 없습니다."
-        });
-      }
+const dailyFile =
+  req.files?.dailyImage?.[0];
 
-
-      const mime =
-        req.file.mimetype ||
-        "image/jpeg";
-
-
-      const imageData =
-        `data:${mime};base64,${req.file.buffer.toString("base64")}`;
+if (!weeklyFile || !dailyFile) {
+  return res.status(400).json({
+    error: "주봉 이미지와 일봉 이미지가 모두 필요합니다."
+  });
+}
 
 
+const weeklyMime =
+  weeklyFile.mimetype ||
+  "image/jpeg";
+
+const dailyMime =
+  dailyFile.mimetype ||
+  "image/jpeg";
+
+const weeklyImageData =
+  `data:${weeklyMime};base64,${weeklyFile.buffer.toString("base64")}`;
+
+const dailyImageData =
+  `data:${dailyMime};base64,${dailyFile.buffer.toString("base64")}`;
+
+
+   
       const ticker =
         (req.body.ticker || "")
           .toUpperCase();
@@ -1286,9 +1313,27 @@ ${ticker}
 사용자가 입력한 시간봉:
 ${timeframe}
 
+첫 번째 이미지는 주봉 차트다.
+두 번째 이미지는 일봉 차트다.
+
+주봉 차트는 큰 추세와 장기 방향을 판단하는 데 사용한다.
+일봉 차트는 실제 진입 타이밍과 단기 기술적 신호를 판단하는 데 사용한다.
 
 중요 규칙:
 
+- weeklyTrend는 첫 번째 이미지인 주봉 차트만 보고 판단한다.
+- dailyTrend는 두 번째 이미지인 일봉 차트만 보고 판단한다.
+- weeklyTrend와 dailyTrend를 서로 복사하지 않는다.
+- 각 차트에서 확인되는 실제 추세만 각각 반환한다.
+- weeklyTrend와 dailyTrend는 반드시 "bullish", "bearish", "mixed", "unknown" 중 하나만 반환한다.
+- 추세를 명확히 판단할 수 없으면 "unknown"을 반환한다.
+- weeklyTrend는 첫 번째 이미지인 주봉 차트에서만 판단한다.
+- dailyTrend와 price, volume, volumeAvg, rsi, atr, ema20, ema50, ema200, ema20Position, ema50Position, ema200Position, emaAlignment, stochK, stochD, macd, macdSignal, support, resistance, invalidation은 두 번째 이미지인 일봉 차트에서만 추출한다.
+- 주봉 차트의 RSI, MACD, ATR, 거래량, EMA 숫자를 일봉 데이터로 사용하지 않는다.
+- 일봉 차트의 추세를 weeklyTrend에 사용하지 않는다.
+- 두 이미지의 지표 값을 서로 섞지 않는다.
+- trend는 반드시 두 번째 이미지인 일봉 차트의 추세를 의미한다.
+- trend는 dailyTrend와 같은 방향을 기준으로 반환하고, 주봉 추세를 trend에 반영하지 않는다.
 - 차트 화면에 표시된 실제 시간봉을 읽어 timeframeDetected에 반환한다.
 - 시간봉이 명확히 보이면 "5분봉", "15분봉", "30분봉", "60분봉", "120분봉", "일봉", "주봉" 중 하나를 반환한다.
 - 시간봉이 명확하지 않으면 timeframeDetected는 null로 반환한다.
@@ -1365,6 +1410,8 @@ stochK
 stochD
 macd
 macdSignal
+weeklyTrend
+dailyTrend
 trend
 support
 resistance
@@ -1394,6 +1441,8 @@ timeframeDetected
   "stochD": null,
   "macd": null,
   "macdSignal": null,
+  "weeklyTrend": "",
+  "dailyTrend": "",
   "trend": "",
   "support": null,
   "resistance": null,
@@ -1576,7 +1625,25 @@ timeframeDetected: {
             { type: "null" }
           ]
         },
+weeklyTrend: {
+  type: "string",
+  enum: [
+    "bullish",
+    "bearish",
+    "mixed",
+    "unknown"
+  ]
+},
 
+dailyTrend: {
+  type: "string",
+  enum: [
+    "bullish",
+    "bearish",
+    "mixed",
+    "unknown"
+  ]
+},
         trend: { type: "string" },
 
         support: {
@@ -1624,6 +1691,8 @@ timeframeDetected: {
         "stochD",
         "macd",
         "macdSignal",
+        "weeklyTrend",
+        "dailyTrend",
         "trend",
         "support",
         "resistance",
@@ -1647,11 +1716,17 @@ timeframeDetected: {
                   text: prompt
                 },
 
-                {
-                  type: "input_image",
-                  image_url: imageData,
-                  detail: "auto"
-                }
+{
+  type: "input_image",
+  image_url: weeklyImageData,
+  detail: "auto"
+},
+
+{
+  type: "input_image",
+  image_url: dailyImageData,
+  detail: "auto"
+}
 
               ]
             }
@@ -1685,9 +1760,22 @@ try {
   });
 }
 
-      const rawTrend = String(extracted.trend || "").trim();
+const rawTrend =
+  String(
+    extracted.dailyTrend ||
+    extracted.trend ||
+    ""
+  );
 
-if (rawTrend.includes("강한 상승")) {
+if (rawTrend === "bullish") {
+  extracted.trend = "상승";
+} else if (rawTrend === "bearish") {
+  extracted.trend = "하락";
+} else if (rawTrend === "mixed") {
+  extracted.trend = "횡보";
+} else if (rawTrend === "unknown") {
+  extracted.trend = "횡보";
+} else if (rawTrend.includes("강한 상승")) {
   extracted.trend = "강한 상승";
 } else if (rawTrend.includes("상승")) {
   extracted.trend = "상승";
