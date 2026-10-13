@@ -1690,12 +1690,16 @@ const entryDecision =
     technical,
     tradePlan
   );
-
+const tickerMismatch =
+  extracted.ticker &&
+  ticker &&
+  extracted.ticker !== ticker;
       const result = {
 
         ...extracted,
 
 market,
+        tickerMismatch,
         
         ticker:
           extracted.ticker ||
