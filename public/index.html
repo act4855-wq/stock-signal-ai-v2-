@@ -1111,9 +1111,10 @@ document.getElementById(
       document.getElementById(
         "invalidation"
       ).textContent =
-       data.invalidation
-  ? displayValue(
-      data.invalidation
+     data.invalidation
+  ? displayPrice(
+      data.invalidation,
+      data.market
     )
   : data.tradePlan?.stopLoss != null
   ? `계산 기준: ${displayPrice(
