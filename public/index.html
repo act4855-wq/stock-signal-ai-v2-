@@ -1087,7 +1087,10 @@ document.getElementById(
        data.price !== null &&
        data.support < data.price &&
        data.support >= data.price * 0.8
-       ? displayPrice(data.support)
+       ? displayPrice(
+        data.support,
+        data.market
+        )
        : "판독 불가";
 
 
@@ -1098,7 +1101,10 @@ document.getElementById(
        data.price !== null &&
        data.resistance > data.price &&
        data.resistance <= data.price * 1.2
-      ? displayPrice(data.resistance)
+      ? displayPrice(
+       data.resistance,
+       data.market
+       )
       : "판독 불가";
 
 
@@ -1110,8 +1116,11 @@ document.getElementById(
       data.invalidation
     )
   : data.tradePlan?.stopLoss != null
-    ? `계산 기준: ${displayPrice(data.tradePlan.stopLoss)} 이탈 시 매매 시나리오 재검토`
-    : "판독 불가";
+  ? `계산 기준: ${displayPrice(
+      data.tradePlan.stopLoss,
+      data.market
+    )} 이탈 시 매매 시나리오 재검토`
+  : "판독 불가";
 
 
       const plan =
@@ -1135,8 +1144,9 @@ const isSellSignal =
   isSellSignal
     ? "신규매수 비활성"
     : displayPrice(
-        plan.entryCandidate
-      );
+    plan.entryCandidate,
+    data.market
+  );
 
      document.getElementById(
   "target1"
@@ -1144,9 +1154,9 @@ const isSellSignal =
   isSellSignal
     ? "-"
     : displayPrice(
-        plan.target1
-      );
-
+    plan.target1,
+    data.market
+  );
 
      document.getElementById(
   "targetSource"
@@ -1165,8 +1175,9 @@ const isSellSignal =
   isSellSignal
     ? "-"
     : displayPrice(
-        plan.stopLoss
-      );
+    plan.stopLoss,
+    data.market
+  );
       
 
      document.getElementById(
