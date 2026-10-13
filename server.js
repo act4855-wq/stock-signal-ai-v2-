@@ -867,6 +867,12 @@ if (tradeQuality === "진입 금지") {
 } else if (weeklyTrend === "bearish") {
 
   entryStatus = "신규매수 보류";
+} else if (
+  weeklyTrend === "mixed" ||
+  weeklyTrend === "unknown"
+) {
+
+  entryStatus = "관망";
 
 } else if (
   technical.signal === "매도 후보" ||
