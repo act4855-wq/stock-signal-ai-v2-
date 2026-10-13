@@ -1715,7 +1715,12 @@ const entryDecision =
     technical,
     tradePlan
   );
-const timeframeMismatch =
+  const tickerMismatch =
+  extracted.ticker &&
+  ticker &&
+  extracted.ticker !== ticker;
+      
+  const timeframeMismatch =
   extracted.timeframeDetected &&
   timeframe &&
   extracted.timeframeDetected !== timeframe;
