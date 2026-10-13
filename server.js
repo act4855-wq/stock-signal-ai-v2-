@@ -1694,6 +1694,16 @@ const tickerMismatch =
   extracted.ticker &&
   ticker &&
   extracted.ticker !== ticker;
+      if (tickerMismatch) {
+  tradePlan.entryStatus = "신규매수 보류";
+  tradePlan.tradeQuality = "분석 재확인";
+  tradePlan.strategy =
+    "입력한 종목과 차트에서 판독된 종목이 다릅니다. 차트와 종목을 다시 확인한 뒤 분석해주세요.";
+
+  entryDecision.entryDecision = "관망";
+  entryDecision.decisionReason =
+  "입력한 종목과 차트에서 판독된 종목이 달라 진입 판단을 중단합니다.";
+}
       const result = {
 
         ...extracted,
