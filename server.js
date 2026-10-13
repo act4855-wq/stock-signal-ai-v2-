@@ -841,14 +841,30 @@ if (riskReward !== null) {
   }
 }
 
+  const weeklyTrend =
+  String(data.weeklyTrend || "").trim();
+
+if (weeklyTrend === "bearish") {
+
+  if (tradeQuality === "우수") {
+    tradeQuality = "검토 가능";
+
+  } else if (tradeQuality === "검토 가능") {
+    tradeQuality = "관망";
+  }
+}
 
   // ------------------------------------------
   // 9. 진입 판단
   // ------------------------------------------
 
- let entryStatus = "관망";
+let entryStatus = "관망";
 
 if (tradeQuality === "진입 금지") {
+
+  entryStatus = "신규매수 보류";
+
+} else if (weeklyTrend === "bearish") {
 
   entryStatus = "신규매수 보류";
 
@@ -947,7 +963,14 @@ const formatStrategyPrice = (value) => {
   return "$" + Number(value).toFixed(2);
 };
 let strategy = "";
- if (
+
+if (weeklyTrend === "bearish") {
+
+  strategy =
+    "주봉 추세가 하락이므로 신규매수는 보류합니다. " +
+    "일봉 반등 신호가 나타나더라도 주봉 추세 전환이 확인될 때까지 기다립니다.";
+
+} else if (
   technical.signal === "매도 후보" ||
   technical.signal === "약한 매도 후보"
 ) {
