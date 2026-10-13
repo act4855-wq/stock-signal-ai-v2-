@@ -471,10 +471,20 @@ AI 자동 분석
 </div>
 
 <div class="row">
+  <span>주봉 추세</span>
+  <strong id="weeklyTrend">-</strong>
+</div>
+
+<div class="row">
+  <span>일봉 추세</span>
+  <strong id="dailyTrend">-</strong>
+</div>
+  
+<div class="row">
 <span>차트 판독 지지선</span>
 <strong id="support">-</strong>
 </div>
-
+ 
 <div class="row">
 <span>차트 판독 저항선</span>
 <strong id="resistance">-</strong>
@@ -1193,6 +1203,27 @@ document.getElementById(
 ).textContent =
   displayTrend;
 
+      document.getElementById(
+  "weeklyTrend"
+).textContent =
+  data.weeklyTrend === "bullish"
+    ? "상승"
+    : data.weeklyTrend === "bearish"
+      ? "하락"
+      : data.weeklyTrend === "mixed"
+        ? "혼조"
+        : "판단 불가";
+
+document.getElementById(
+  "dailyTrend"
+).textContent =
+  data.dailyTrend === "bullish"
+    ? "상승"
+    : data.dailyTrend === "bearish"
+      ? "하락"
+      : data.dailyTrend === "mixed"
+        ? "혼조"
+        : "판단 불가";
 
       document.getElementById(
         "support"
