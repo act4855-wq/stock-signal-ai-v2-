@@ -468,7 +468,7 @@ AI 자동 분석
 </div>
 
 <div class="row">
-<span>추세</span>
+<span>일봉 EMA 추세</span>
 <strong id="trend">-</strong>
 </div>
 
@@ -477,9 +477,14 @@ AI 자동 분석
   <strong id="weeklyTrend">-</strong>
 </div>
 
-<div class="row">
+  <div class="row">
   <span>일봉 추세</span>
   <strong id="dailyTrend">-</strong>
+</div>
+  
+<div class="row">
+  <span>멀티타임프레임 판단</span>
+  <strong id="multiTimeframeSummary">-</strong>
 </div>
   
 <div class="row">
@@ -1226,7 +1231,36 @@ document.getElementById(
       : data.dailyTrend === "mixed"
         ? "혼조"
         : "판단 불가";
+let multiTimeframeSummary = "판단 불가";
 
+if (
+  data.weeklyTrend === "bullish" &&
+  data.dailyTrend === "bullish"
+) {
+  multiTimeframeSummary = "상승 정렬 · 우호적";
+} else if (
+  data.weeklyTrend === "bullish" &&
+  data.dailyTrend === "mixed"
+) {
+  multiTimeframeSummary = "주봉 상승 · 일봉 혼조 · 눌림목 관찰";
+} else if (
+  data.weeklyTrend === "bullish" &&
+  data.dailyTrend === "bearish"
+) {
+  multiTimeframeSummary = "주봉 상승 · 일봉 조정 · 반등 확인 필요";
+} else if (data.weeklyTrend === "bearish") {
+  multiTimeframeSummary = "주봉 하락 · 신규진입 보수적";
+} else if (data.weeklyTrend === "mixed") {
+  multiTimeframeSummary = "주봉 혼조 · 방향 확인 필요";
+} else {
+  multiTimeframeSummary = "주봉 추세 판단 불가";
+}
+
+document.getElementById(
+  "multiTimeframeSummary"
+).textContent =
+  multiTimeframeSummary;
+      
       document.getElementById(
         "support"
       ).textContent =
