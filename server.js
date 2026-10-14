@@ -1802,7 +1802,24 @@ try {
     error: "AI가 차트 데이터를 올바른 형식으로 반환하지 못했습니다. 다시 분석해주세요."
   });
 }
+const rawStochK = num(extracted.stochK);
+const rawStochD = num(extracted.stochD);
 
+if (
+  rawStochK === null ||
+  rawStochK < 0 ||
+  rawStochK > 100
+) {
+  extracted.stochK = null;
+}
+
+if (
+  rawStochD === null ||
+  rawStochD <= 0 ||
+  rawStochD >= 100
+) {
+  extracted.stochD = null;
+}
 const rawTrend =
   String(
     extracted.dailyTrend ||
