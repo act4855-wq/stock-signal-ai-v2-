@@ -1807,8 +1807,8 @@ const rawStochD = num(extracted.stochD);
 
 if (
   rawStochK === null ||
-  rawStochK < 0 ||
-  rawStochK > 100
+  rawStochK <= 0 ||
+  rawStochK >= 100
 ) {
   extracted.stochK = null;
 }
