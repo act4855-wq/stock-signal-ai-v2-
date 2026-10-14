@@ -1131,6 +1131,17 @@ else if (weeklyTrend === "bearish") {
     "주봉 추세가 하락이므로 일봉의 단기 매수 신호가 있더라도 신규 진입을 보류합니다.";
 
 }
+
+else if (
+  weeklyTrend === "bullish" &&
+  data.dailyTrend === "bearish"
+) {
+
+  entryDecision = "반등 확인 대기";
+  decisionReason =
+    "주봉 상승 추세는 유지되고 있지만 일봉은 조정 중이므로 일봉 반등 신호가 확인될 때까지 신규 진입을 기다립니다.";
+
+}
   
 else if (technical.trendFilterReady === false) {
 
