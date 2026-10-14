@@ -844,6 +844,7 @@ if (riskReward !== null) {
   const weeklyTrend =
   String(data.weeklyTrend || "").trim();
 
+
 if (weeklyTrend === "bearish") {
 
   if (tradeQuality === "우수") {
@@ -1080,6 +1081,9 @@ function calculateEntryDecision(data, technical, plan) {
   const entry = num(plan?.entryCandidate);
   const weeklyTrend =
   String(data.weeklyTrend || "").trim();
+
+data.dailyTrend = "bearish";
+  
    const tradeQuality =
   String(plan?.tradeQuality || "").trim();
   
