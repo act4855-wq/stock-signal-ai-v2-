@@ -1082,8 +1082,7 @@ function calculateEntryDecision(data, technical, plan) {
   const weeklyTrend =
   String(data.weeklyTrend || "").trim();
 
-data.dailyTrend = "bearish";
-  
+ 
    const tradeQuality =
   String(plan?.tradeQuality || "").trim();
   
