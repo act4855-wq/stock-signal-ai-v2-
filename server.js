@@ -222,14 +222,13 @@ if (k !== null && d !== null) {
   if (k < 20 && d < 20 && k > d) {
     score += 1;
     reasons.push(
-      `스토캐스틱 K ${k} / D ${d}: 과매도권 골든크로스`
+      `스토캐스틱 K ${k} / D ${d}: 과매도권 K>D, 상승 우위 (교차 시점 미확인)`
     );
 
   } else if (k > 80 && d > 80 && k < d) {
     score -= 1;
     reasons.push(
-      `스토캐스틱 K ${k} / D ${d}: 과매수권 데드크로스`
-    );
+      `스토캐스틱 K ${k} / D ${d}: 과매수권 K<D, 하락 우위 (교차 시점 미확인)`
 
   } else if (k > 80) {
     reasons.push(
@@ -905,7 +904,10 @@ if (
   (validEntryResistance - price) / price;
 
 
-    if (resistanceDistance <= 0.03) {
+   if (
+  resistanceDistance <= 0.03 &&
+  entryStatus !== "신규매수 보류"
+) {
 
       entryStatus =
         "저항 근접 - 추격주의";
