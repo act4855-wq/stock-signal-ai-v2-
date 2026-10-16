@@ -1375,10 +1375,6 @@ ${timeframe}
 - 두 이미지의 지표 값을 서로 섞지 않는다.
 - trend는 반드시 두 번째 이미지인 일봉 차트의 추세를 의미한다.
 - trend는 dailyTrend와 같은 방향을 기준으로 반환하고, 주봉 추세를 trend에 반영하지 않는다.
-- 차트 화면에 표시된 실제 시간봉을 읽어 timeframeDetected에 반환한다.
-- 시간봉이 명확히 보이면 "5분봉", "15분봉", "30분봉", "60분봉", "120분봉", "일봉", "주봉" 중 하나를 반환한다.
-- 시간봉이 명확하지 않으면 timeframeDetected는 null로 반환한다.
-- 사용자가 선택한 시간봉을 보고 추정하지 말고, 반드시 차트 화면에서 실제로 확인되는 값만 반환한다.
 - 이미지에서 실제로 읽을 수 있는 정보만 반환한다.
 - 숫자가 명확하지 않으면 null을 반환한다.
 - 절대로 보이지 않는 숫자를 추측해서 만들지 않는다.
@@ -1458,14 +1454,12 @@ support
 resistance
 invalidation
 confidence
-timeframeDetected
 
 
 반드시 JSON만 출력한다.
 
 {
   "ticker": "",
-  "timeframeDetected": null,
   "price": null,
   "volume": null,
   "volumeAvg": null,
@@ -1524,26 +1518,8 @@ timeframeDetected
     }
   ]
 },
-timeframeDetected: {
-  anyOf: [
-    {
-      type: "string",
-      enum: [
-        "5분봉",
-        "15분봉",
-        "30분봉",
-        "60분봉",
-        "120분봉",
-        "일봉",
-        "주봉"
-      ]
-    },
-    {
-      type: "null"
-    }
-  ]
-},
-        price: {
+
+          price: {
           anyOf: [
             { type: "number" },
             { type: "null" }
@@ -1715,7 +1691,6 @@ dailyTrend: {
 
       required: [
         "ticker",
-        "timeframeDetected",
         "price",
         "volume",
         "volumeAvg",
