@@ -229,7 +229,7 @@ if (k !== null && d !== null) {
     score -= 1;
     reasons.push(
       `스토캐스틱 K ${k} / D ${d}: 과매수권 K<D, 하락 우위 (교차 시점 미확인)`
-
+    );
   } else if (k > 80) {
     reasons.push(
       `스토캐스틱 K ${k}: 과매수 구간, 추격 진입 주의`
