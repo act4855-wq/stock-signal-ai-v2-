@@ -447,9 +447,6 @@ AI 자동 분석
 <div id="tickerMismatchWarning"
      style="display:none; color:#ff7474; margin:12px 0; font-weight:bold;">
 </div>
-<div id="timeframeMismatchWarning"
-     style="display:none; color:#ffb347; margin:12px 0; font-weight:bold;">
-</div>
 <div class="row">
 <span>캡처 표시 가격</span>
 <strong id="price">-</strong>
@@ -1150,17 +1147,7 @@ if (data.tickerMismatch) {
   tickerMismatchWarning.style.display = "none";
   tickerMismatchWarning.textContent = "";
 }
-const timeframeMismatchWarning =
-  document.getElementById("timeframeMismatchWarning");
 
-if (data.timeframeMismatch) {
-  timeframeMismatchWarning.style.display = "block";
-  timeframeMismatchWarning.textContent =
-    "선택한 시간봉과 차트에서 판독된 시간봉이 다릅니다. 차트 시간봉을 다시 확인해주세요.";
-} else {
-  timeframeMismatchWarning.style.display = "none";
-  timeframeMismatchWarning.textContent = "";
-}      
       document.getElementById(
         "price"
       ).textContent =
@@ -1302,8 +1289,7 @@ const isSellSignal =
   data.signal === "약한 매도 후보";
 
 const isAnalysisInvalid =
-  data.tickerMismatch ||
-  data.timeframeMismatch;
+  data.tickerMismatch; 
       
 document.getElementById(
   "entryCandidate"
