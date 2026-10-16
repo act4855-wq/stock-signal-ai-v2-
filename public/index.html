@@ -346,18 +346,6 @@ button:disabled {
   placeholder="예: TSLA, TSLL, NVDA"
 >
 
-<label>차트 시간봉</label>
-
-<select id="timeframe">
-  <option value="5분봉">5분봉</option>
-  <option value="15분봉">15분봉</option>
-  <option value="30분봉">30분봉</option>
-  <option value="60분봉">60분봉</option>
-  <option value="120분봉">120분봉</option>
-  <option value="일봉" selected>일봉</option>
-  <option value="주봉">주봉</option>
-</select>
-
 <div class="upload-box">
 
   <div>주봉 차트 스크린샷</div>
@@ -1036,14 +1024,7 @@ formData.append(
     .value
       );
 
-      formData.append(
-        "timeframe",
-        document
-          .getElementById("timeframe")
-          .value
-      );
-
-
+     
       const response =
         await fetch(
           "/api/analyze",
