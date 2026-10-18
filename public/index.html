@@ -1463,38 +1463,38 @@ let decisionSignal = "⚪ 판단 불가";
 
 // V8 통합 매매 신호
 
-if (technicalsignal === "매도 후보") {
+if (technicalSignal === "매도 후보") {
 
   decisionSignal = "🔴 매도 검토";
 
-} else if (technicalsignal === "약한 매도 후보") {
+} else if (technicalSignal === "약한 매도 후보") {
 
   decisionSignal = "🟠 매도 관찰";
 
 } else if (
-  technicalsignal === "매수 후보" &&
+  technicalSignal === "매수 후보" &&
   decision === "진입 가능"
 ) {
 
   decisionSignal = "🟢 매수 검토";
 
 } else if (
-  technicalsignal === "약한 매수 후보" &&
+  technicalSignal === "약한 매수 후보" &&
   decision === "진입 가능"
 ) {
 
   decisionSignal = "🟡 매수 관찰";
 
 } else if (
-  technicalsignal === "관망" &&
+  technicalSignal === "관망" &&
   decision === "진입 가능"
 ) {
 
   decisionSignal = "🟡 추가 확인";
 
 } else if (
-  technicalsignal === "매수 후보" ||
-  technicalsignal === "약한 매수 후보"
+  technicalSignal === "매수 후보" ||
+  technicalSignal === "약한 매수 후보"
 ) {
 
   decisionSignal = "🟡 진입 대기";
