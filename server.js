@@ -402,7 +402,7 @@ return {
 // ==========================================
 
 function calculateTradePlan(data, technical, market) {
-
+  const technicalSignal = technical?.signal || "판단 불가";
   const price = num(data.price);
   const atr = num(data.atr);
   const support = num(data.support);
