@@ -1822,8 +1822,10 @@ if (rawTrend === "bullish") {
   extracted.trend = "횡보";
 }
 
-      const technical =
-        calculateSignal(extracted);
+const technical =
+  calculateSignal(extracted);
+
+const technicalSignal = technical.signal;
 
 
 const tradePlan =
