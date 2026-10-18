@@ -1868,7 +1868,7 @@ market,
           ticker,
 
         signal:
-          technicalSignal,
+          technical.Signal,
 
         score:
           technical.score,
