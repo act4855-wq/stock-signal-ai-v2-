@@ -491,7 +491,7 @@ AI 자동 분석
 <div class="trade-plan">
 
 <div class="trade-title">
-V6 위험관리 매매 계획
+V7 통합 매매 전략
 </div>
 
 
@@ -1461,17 +1461,43 @@ const technicalSignal =
 
 let decisionSignal = "⚪ 판단 불가";
 
-if (technicalSignal === "매도 후보") {
-  decisionSignal = "🔴 매도 후보";
+// V8 통합 매매 신호
 
-} else if (technicalSignal === "약한 매도 후보") {
+if (technical.signal === "매도 후보") {
+
+  decisionSignal = "🔴 매도 검토";
+
+} else if (technical.signal === "약한 매도 후보") {
+
   decisionSignal = "🟠 매도 관찰";
 
-} else if (decision === "진입 가능") {
-  decisionSignal = "🟢 진입 가능";
+} else if (
+  technical.signal === "매수 후보" &&
+  decision === "진입 가능"
+) {
 
-} else if (decision === "눌림목 대기") {
+  decisionSignal = "🟢 매수 검토";
+
+} else if (
+  technical.signal === "약한 매수 후보" &&
+  decision === "진입 가능"
+) {
+
   decisionSignal = "🟡 매수 관찰";
+
+} else if (
+  technical.signal === "관망" &&
+  decision === "진입 가능"
+) {
+
+  decisionSignal = "🟡 추가 확인";
+
+} else if (
+  technical.signal === "매수 후보" ||
+  technical.signal === "약한 매수 후보"
+) {
+
+  decisionSignal = "🟡 진입 대기";
 
 } else if (
   decision === "관망" ||
@@ -1480,12 +1506,16 @@ if (technicalSignal === "매도 후보") {
   decision === "신호 대기" ||
   decision === "반등 확인 대기"
 ) {
+
   decisionSignal = "🟡 " + decision;
+
 } else if (
   decision === "진입 보류" ||
   decision === "매도 후보"
 ) {
-  decisionSignal = "🔴 진입 보류";
+
+  decisionSignal = "🔴 신규매수 보류";
+
 }
 
 document.getElementById(
