@@ -875,8 +875,8 @@ if (tradeQuality === "진입 금지") {
   entryStatus = "관망";
 
 } else if (
-  technical.signal === "매도 후보" ||
-  technical.signal === "약한 매도 후보"
+  technicalSignal === "매도 후보" ||
+  technicalSignal === "약한 매도 후보"
 ) {
 
   entryStatus = "신규매수 보류";
@@ -980,8 +980,8 @@ if (weeklyTrend === "bearish") {
     "일봉 반등 신호가 나타나더라도 주봉 추세 전환이 확인될 때까지 기다립니다.";
 
 } else if (
-  technical.signal === "매도 후보" ||
-  technical.signal === "약한 매도 후보"
+  technicalSignal === "매도 후보" ||
+  technicalSignal === "약한 매도 후보"
 ) {
 
   strategy =
@@ -1866,7 +1866,7 @@ market,
           ticker,
 
         signal:
-          technical.signal,
+          technicalSignal,
 
         score:
           technical.score,
